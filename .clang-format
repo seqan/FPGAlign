@@ -118,12 +118,18 @@ IncludeCategories:
     Priority:        1
   - Regex:           '(<[[:alnum:]._]+>)'
     Priority:        2
-  - Regex:           '<sharg/'
+  - Regex:           '<fmt/'
     Priority:        3
-  - Regex:           '<seqan3/'
+  - Regex:           '<sharg/'
     Priority:        4
-  - Regex:           '.*'
+  - Regex:           '<seqan3/'
     Priority:        5
+  - Regex:           '<hibf/'
+    Priority:        6
+  - Regex:           '<fmindex-collection/'
+    Priority:        7
+  - Regex:           '.*'
+    Priority:        8
 IncludeIsMainRegex: '(Test)?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false

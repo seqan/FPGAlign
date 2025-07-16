@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2006-2025 Knut Reinert & Freie Universität Berlin
 # SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
-# SPDX-License-Identifier: CC0-1.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 set (DATASOURCES_DATA_DIR "${FPGAlign_SOURCE_DIR}/test/data")
 
@@ -22,7 +22,7 @@ foreach (datasource IN LISTS datasources)
     # If a matching file contains `@data_dir@`, it will be replaced with the actual data directory.
     # This is useful if you have test files that need to reference the data directory, e.g., a file containing
     # paths to other files.
-    if (FALSE)
+    if (datasource_name MATCHES ".*\.txt$")
         configure_file ("${DATASOURCES_DATA_DIR}/${datasource}" "${data_dir}/${datasource_name}")
     else ()
         configure_file ("${DATASOURCES_DATA_DIR}/${datasource}" "${data_dir}/${datasource_name}" COPYONLY)
