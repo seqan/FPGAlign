@@ -17,8 +17,8 @@ enum class subcommand : uint8_t
 
 struct parse_result
 {
-    subcommand subcommand;
-    config config;
+    subcommand subcmd;
+    config cfg;
 };
 
 parse_result parse_arguments(std::vector<std::string> command_line);

@@ -42,6 +42,13 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     endif ()
 endif ()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # std::jthread is experimental in LLVM < 20
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 20)
+        target_compile_definitions (FPGAlign_lib PUBLIC "_LIBCPP_ENABLE_EXPERIMENTAL")
+    endif ()
+endif ()
+
 # Add the application.
 add_executable (FPGAlign fpgalign.cpp)
 target_link_libraries (FPGAlign PRIVATE FPGAlign_lib)

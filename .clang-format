@@ -246,4 +246,6 @@ TabWidth:        4
 UseTab:          Never
 VerilogBreakBetweenInstancePorts: true
 WhitespaceSensitiveMacros:
+  - SEQAN3_WORKAROUND_GCC_BOGUS_MEMCPY_START
+  - SEQAN3_WORKAROUND_GCC_BOGUS_MEMCPY_STOP
 ...

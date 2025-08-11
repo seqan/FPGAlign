@@ -140,13 +140,13 @@ parse_result parse_arguments(std::vector<std::string> command_line)
 
     if (sub_parser.info.app_name == std::string_view{"FPGAlign-build"})
     {
-        result.subcommand = subcommand::build;
-        result.config = build::parse_arguments(sub_parser);
+        result.subcmd = subcommand::build;
+        result.cfg = build::parse_arguments(sub_parser);
     }
     if (sub_parser.info.app_name == std::string_view{"FPGAlign-search"})
     {
-        result.subcommand = subcommand::search;
-        result.config = search::parse_arguments(sub_parser);
+        result.subcmd = subcommand::search;
+        result.cfg = search::parse_arguments(sub_parser);
     }
 
     return result;

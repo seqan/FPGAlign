@@ -16,10 +16,10 @@ int main(int argc, char ** argv)
     {
         parse_result const result = parse_arguments({argv, argv + argc});
 
-        if (result.subcommand == subcommand::build)
-            build::build(result.config);
-        if (result.subcommand == subcommand::search)
-            search::search(result.config);
+        if (result.subcmd == subcommand::build)
+            build::build(result.cfg);
+        if (result.subcmd == subcommand::search)
+            search::search(result.cfg);
     }
     catch (std::exception const & ext)
     {
