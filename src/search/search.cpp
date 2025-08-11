@@ -9,8 +9,9 @@ namespace search
 
 void search(config const & config)
 {
-    std::vector<hit> hits = ibf(config);
-    fmindex(config, std::move(hits));
+    size_t todo_bin_count{};
+    std::vector<hit> hits = ibf(config, todo_bin_count);
+    fmindex(config, std::move(hits), todo_bin_count);
 }
 
 } // namespace search

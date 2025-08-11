@@ -44,7 +44,7 @@ threshold::threshold get_thresholder(config const & config)
 using seqfile_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>>;
 using record_t = typename seqfile_t::record_type;
 
-std::vector<hit> ibf(config const & config)
+std::vector<hit> ibf(config const & config, size_t & todo_bin_count)
 {
     seqan::hibf::interleaved_bloom_filter ibf{};
 
@@ -53,6 +53,7 @@ std::vector<hit> ibf(config const & config)
         cereal::BinaryInputArchive iarchive{os};
         iarchive(ibf);
     }
+    todo_bin_count = ibf.bin_count();
 
     std::vector<record_t> records = [&]()
     {

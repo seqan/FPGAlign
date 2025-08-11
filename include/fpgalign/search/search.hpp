@@ -20,7 +20,7 @@ struct hit
 };
 
 void search(config const & config);
-std::vector<hit> ibf(config const & config);
-void fmindex(config const & config, std::vector<hit> hits);
+std::vector<hit> ibf(config const & config, size_t & todo_bin_count);
+void fmindex(config const & config, std::vector<hit> hits, size_t const todo_bin_count);
 
 } // namespace search
