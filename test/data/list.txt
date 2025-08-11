@@ -1,0 +1,5 @@
+@data_dir@/in.fastq
+@data_dir@/out.fasta
+@data_dir@/in.fastq
+@data_dir@/out.fasta
+@data_dir@/in.fastq

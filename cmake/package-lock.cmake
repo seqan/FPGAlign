@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2006-2025, Knut Reinert & Freie Universität Berlin
 # SPDX-FileCopyrightText: 2016-2025, Knut Reinert & MPI für molekulare Genetik
-# SPDX-License-Identifier: CC0-1.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 # CPM Package Lock (https://github.com/cpm-cmake/CPM.cmake)
 # This file should be committed to version control
@@ -8,7 +8,7 @@
 # cmake-format: off
 
 # hibf
-set (HIBF_VERSION 36c223527d7d4eb2bcdcd88d47c71984f50a00a3 CACHE STRING "" FORCE)
+set (HIBF_VERSION 36c223527d7d4eb2bcdcd88d47c71984f50a00a3 CACHE STRING "")
 CPMDeclarePackage (hibf
                    NAME hibf
                    GIT_TAG ${HIBF_VERSION} # main
@@ -19,7 +19,7 @@ CPMDeclarePackage (hibf
 )
 
 # sharg
-set (SHARG_VERSION be113bcffe49c0d62cbd65a191820f05386aa8da CACHE STRING "" FORCE)
+set (SHARG_VERSION be113bcffe49c0d62cbd65a191820f05386aa8da CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
                    GIT_TAG ${SHARG_VERSION} # main
@@ -30,7 +30,7 @@ CPMDeclarePackage (sharg
 )
 
 # seqan3
-set (SEQAN3_VERSION 6dfa1b442d1fabd07024edcc37a29b61d5beae8f CACHE STRING "" FORCE)
+set (SEQAN3_VERSION 6dfa1b442d1fabd07024edcc37a29b61d5beae8f CACHE STRING "")
 CPMDeclarePackage (seqan3
                    NAME seqan3
                    GIT_TAG ${SEQAN3_VERSION} # main
@@ -40,8 +40,20 @@ CPMDeclarePackage (seqan3
                    OPTIONS "INSTALL_SEQAN3 OFF" "CMAKE_MESSAGE_LOG_LEVEL WARNING"
 )
 
+# fmt
+set (FMT_VERSION 11.2.0 CACHE STRING "")
+CPMDeclarePackage (fmt
+                   NAME fmt
+                   VERSION ${FMT_VERSION}
+                   GIT_TAG ${FMT_VERSION}
+                   GITHUB_REPOSITORY fmtlib/fmt
+                   SYSTEM TRUE
+                   EXCLUDE_FROM_ALL TRUE
+                   OPTIONS "CMAKE_MESSAGE_LOG_LEVEL WARNING" "FMT_INSTALL OFF"
+)
+
 # fmindex
-set (FMINDEX_VERSION 7ed8c3a6035a898f3e9574c5aa96af8b74ca6ef4 CACHE STRING "" FORCE)
+set (FMINDEX_VERSION 7ed8c3a6035a898f3e9574c5aa96af8b74ca6ef4 CACHE STRING "")
 CPMDeclarePackage (fmindex
                    NAME fmindex
                    GIT_TAG ${FMINDEX_VERSION} # main
@@ -52,7 +64,7 @@ CPMDeclarePackage (fmindex
 )
 
 # googletest
-set (GOOGLETEST_VERSION 1.17.0 CACHE STRING "" FORCE)
+set (GOOGLETEST_VERSION 1.17.0 CACHE STRING "")
 CPMDeclarePackage (googletest
                    NAME GTest
                    VERSION ${GOOGLETEST_VERSION}
@@ -63,12 +75,21 @@ CPMDeclarePackage (googletest
 )
 
 # use_ccache
-set (USE_CCACHE_VERSION d2a54ef555b6fc2d496a4c9506dbeb7cf899ce37 CACHE STRING "" FORCE)
+set (USE_CCACHE_VERSION d2a54ef555b6fc2d496a4c9506dbeb7cf899ce37 CACHE STRING "")
 CPMDeclarePackage (use_ccache
                    NAME use_ccache
                    GIT_TAG ${USE_CCACHE_VERSION} # main
                    GITHUB_REPOSITORY seqan/cmake-scripts
                    SOURCE_SUBDIR ccache
+                   SYSTEM TRUE
+                   EXCLUDE_FROM_ALL TRUE
+)
+
+# thresholding
+CPMDeclarePackage (thresholding
+                   NAME thresholding
+                   URL "${PROJECT_SOURCE_DIR}/contrib/threshold.tar.gz"
+                   URL_HASH SHA256=4990c7fb9778a2fb8a19794b966d57496ca77bcd708b4cee3c93eea6e5b67d80
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE
 )

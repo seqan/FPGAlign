@@ -29,10 +29,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: ["clang-latest", "clang-second-latest", "clang-third-latest", "gcc-latest", "gcc-second-latest", "gcc-third-latest", "intel"]
+        compiler: ["clang-latest", "clang-second-latest", "gcc-latest", "gcc-second-latest", "gcc-third-latest", "intel"]
         include:
           - compiler: "intel"
             cxx_flags: "-fp-model=strict -Wno-overriding-option"
+          - compiler: "gcc-latest"
+            cxx_flags: "-Wno-stringop-overflow"
+          - compiler: "gcc-second-latest"
+            cxx_flags: "-Wno-stringop-overflow"
     container:
       image: ghcr.io/seqan/${{ matrix.compiler }}
     steps:

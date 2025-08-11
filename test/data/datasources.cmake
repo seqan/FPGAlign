@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2006-2025 Knut Reinert & Freie Universität Berlin
 # SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
-# SPDX-License-Identifier: CC0-1.0
+# SPDX-License-Identifier: BSD-3-Clause
 
 # This includes `cmake/test/declare_datasource.cmake`, which provides the `declare_datasource` function.
 include (test/declare_datasource)
@@ -27,7 +27,7 @@ include (test/add_local_data)
 # If you have the file locally, you can use `sha256sum` directly:
 #   sha256sum downloaded.fasta
 #   c3cb990ca1a25c7e31be3c6c2d009238d9ac9a44b2b7c143753c1e2881699077  downloaded.fasta
-declare_datasource (FILE downloaded.fasta # This is a custom name. It does not have to match the file name.
-                    URL https://ftp.seqan.de/app-template/downloaded.fasta
-                    URL_HASH SHA256=c3cb990ca1a25c7e31be3c6c2d009238d9ac9a44b2b7c143753c1e2881699077
-)
+# declare_datasource (FILE downloaded.fasta # This is a custom name. It does not have to match the file name.
+#                     URL https://ftp.seqan.de/app-template/downloaded.fasta
+#                     URL_HASH SHA256=c3cb990ca1a25c7e31be3c6c2d009238d9ac9a44b2b7c143753c1e2881699077
+# )
