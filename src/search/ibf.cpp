@@ -5,11 +5,11 @@
 #include <random>
 
 #include <seqan3/io/sequence_file/input.hpp>
-#include <seqan3/search/views/minimiser_hash.hpp>
 
 #include <hibf/config.hpp>
 #include <hibf/interleaved_bloom_filter.hpp>
 
+#include <fpgalign/contrib/minimiser_hash.hpp>
 #include <fpgalign/search/search.hpp>
 #include <threshold/threshold.hpp>
 
@@ -20,11 +20,6 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
 {
     using sequence_alphabet = seqan3::dna4;
 };
-
-static inline constexpr uint64_t adjust_seed(uint8_t const kmer_size) noexcept
-{
-    return 0x8F3F73B5CF1C9ADEULL >> (64u - 2u * kmer_size);
-}
 
 threshold::threshold get_thresholder(config const & config, meta const & meta)
 {
@@ -71,9 +66,9 @@ std::vector<hit> ibf(config const & config, meta & meta)
     {
         auto agent = ibf.membership_agent();
         threshold::threshold const thresholder = get_thresholder(config, meta);
-        auto minimiser_view = seqan3::views::minimiser_hash(seqan3::ungapped{meta.kmer_size},
-                                                            seqan3::window_size{meta.window_size},
-                                                            seqan3::seed{adjust_seed(meta.kmer_size)});
+        auto minimiser_view =
+            contrib::views::minimiser_hash({.kmer_size = meta.kmer_size, .window_size = meta.window_size});
+
         std::vector<uint64_t> hashes;
 
 #pragma omp for
