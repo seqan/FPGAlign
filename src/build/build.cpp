@@ -2,10 +2,15 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <cassert>
 #include <fstream>
 #include <sstream>
 
+#include <fmt/format.h>
+
+#include <cereal/archives/binary.hpp>
 #include <fpgalign/build/build.hpp>
+#include <fpgalign/meta.hpp>
 
 namespace build
 {
@@ -37,8 +42,19 @@ std::vector<std::vector<std::string>> parse_input(config const & config)
 
 void build(config const & config)
 {
-    build::ibf(config);
-    build::fmindex(config);
+    meta meta{};
+    meta.bin_paths = parse_input(config);
+    meta.number_of_bins = meta.bin_paths.size();
+    build::ibf(config, meta);
+    assert(meta.kmer_size == config.kmer_size);
+    assert(meta.window_size == config.window_size);
+    build::fmindex(config, meta);
+
+    {
+        std::ofstream os{fmt::format("{}.meta", config.output_path.c_str()), std::ios::binary};
+        cereal::BinaryOutputArchive oarchive{os};
+        oarchive(meta);
+    }
 }
 
 } // namespace build

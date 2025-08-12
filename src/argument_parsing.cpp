@@ -98,18 +98,6 @@ config parse_arguments(sharg::parser & parser)
                       sharg::config{.short_id = '\0',
                                     .long_id = "threads",
                                     .description = "The number of threads to use."}); // positive_integer_validator
-
-    parser.add_subsection("k-mer options");
-    parser.add_option(config.kmer_size,
-                      sharg::config{.short_id = '\0',
-                                    .long_id = "kmer",
-                                    .description = "The k-mer size.",
-                                    .validator = sharg::arithmetic_range_validator{1, 32}});
-    parser.add_option(config.window_size,
-                      sharg::config{.short_id = '\0',
-                                    .long_id = "window",
-                                    .description = "The window size.",
-                                    .default_message = "k-mer size"});
     parser.add_option(config.errors,
                       sharg::config{.short_id = '\0',
                                     .long_id = "errors",
@@ -117,11 +105,6 @@ config parse_arguments(sharg::parser & parser)
                                     .validator = sharg::arithmetic_range_validator{0, 5}});
 
     parser.parse();
-
-    if (parser.is_option_set("kmer") && !parser.is_option_set("window"))
-        config.window_size = config.kmer_size;
-    else if (config.window_size < config.kmer_size)
-        throw sharg::validation_error{"k-mer size cannot be smaller than window size!"};
 
     return config;
 }

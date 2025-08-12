@@ -24,9 +24,10 @@ static inline constexpr uint64_t adjust_seed(uint8_t const kmer_size) noexcept
     return 0x8F3F73B5CF1C9ADEULL >> (64u - 2u * kmer_size);
 }
 
-void ibf(config const & config)
+void ibf(config const & config, meta & meta)
 {
-    auto const bin_paths = parse_input(config);
+    meta.kmer_size = config.kmer_size;
+    meta.window_size = config.window_size;
 
     auto get_user_bin_data = [&](size_t const user_bin_id, seqan::hibf::insert_iterator it)
     {
@@ -36,7 +37,7 @@ void ibf(config const & config)
                                                             seqan3::window_size{config.window_size},
                                                             seqan3::seed{adjust_seed(config.kmer_size)});
 
-        for (auto && bin_path : bin_paths[user_bin_id])
+        for (auto && bin_path : meta.bin_paths[user_bin_id])
         {
             sequence_file_t fin{bin_path};
             for (auto && record : fin)
@@ -58,7 +59,7 @@ void ibf(config const & config)
     };
 
     seqan::hibf::config ibf_config{.input_fn = get_user_bin_data,
-                                   .number_of_user_bins = bin_paths.size(),
+                                   .number_of_user_bins = meta.bin_paths.size(),
                                    .number_of_hash_functions = config.hash_count,
                                    .maximum_fpr = config.fpr,
                                    .threads = config.threads};

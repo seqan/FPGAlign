@@ -9,14 +9,13 @@
 #include <vector>
 
 #include <fpgalign/config.hpp>
+#include <fpgalign/meta.hpp>
 
 namespace search
 {
 
 struct hit
 {
-    std::string id;
-    std::vector<uint8_t> seq;
     std::vector<uint64_t> bins;
 };
 
@@ -25,9 +24,7 @@ struct wip_alignment
     size_t bin;
     size_t sequence_number;
     size_t position;
-    std::vector<uint8_t> seq;
-    std::vector<uint8_t> ref;
-    std::string id;
+    size_t idx;
 };
 
 class alignment_vector
@@ -57,7 +54,7 @@ public:
 };
 
 void search(config const & config);
-std::vector<hit> ibf(config const & config, size_t & todo_bin_count);
-std::vector<wip_alignment> fmindex(config const & config, std::vector<hit> hits, size_t const todo_bin_count);
+std::vector<hit> ibf(config const & config, meta & meta);
+std::vector<wip_alignment> fmindex(config const & config, meta & meta, std::vector<hit> hits);
 
 } // namespace search

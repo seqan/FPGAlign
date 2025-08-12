@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <fpgalign/config.hpp>
+#include <fpgalign/meta.hpp>
 
 namespace build
 {
@@ -15,7 +16,7 @@ namespace build
 std::vector<std::vector<std::string>> parse_input(config const & config);
 
 void build(config const & config);
-void ibf(config const & config);
-void fmindex(config const & config);
+void ibf(config const & config, meta & meta);
+void fmindex(config const & config, meta & meta);
 
 } // namespace build

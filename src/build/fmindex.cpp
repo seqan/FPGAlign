@@ -6,8 +6,6 @@
 
 #include <seqan3/io/sequence_file/input.hpp>
 
-#include <hibf/contrib/std/enumerate_view.hpp>
-
 #include <fmindex-collection/fmindex/BiFMIndex.h>
 
 #include <fpgalign/build/build.hpp>
@@ -20,15 +18,17 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
     using sequence_alphabet = seqan3::dna4;
 };
 
-std::vector<std::vector<uint8_t>> read_reference(std::vector<std::string> const & bin_paths)
+void read_reference_into(std::vector<std::vector<uint8_t>> & reference, meta & meta, size_t const i)
 {
-    std::vector<std::vector<uint8_t>> reference{};
+    reference.clear();
 
-    for (auto const & bin_path : bin_paths)
+    for (auto const & bin_path : meta.bin_paths[i])
     {
-        seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>> fin{bin_path};
+        seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq, seqan3::field::id>> fin{bin_path};
+
         for (auto && record : fin)
         {
+            meta.ref_ids[i].push_back(record.id());
             reference.push_back({});
             std::ranges::copy(record.sequence()
                                   | std::views::transform(
@@ -39,21 +39,34 @@ std::vector<std::vector<uint8_t>> read_reference(std::vector<std::string> const 
                               std::back_inserter(reference.back()));
         }
     }
-
-    return reference;
 }
 
-void fmindex(config const & config)
+void fmindex(config const & config, meta & meta)
 {
-    for (auto && [id, bin_paths] : seqan::stl::views::enumerate(parse_input(config)))
-    {
-        auto reference = read_reference(bin_paths);
-        fmc::BiFMIndex<5> index{reference, /*samplingRate*/ 16, config.threads};
+    meta.ref_ids.resize(meta.number_of_bins);
 
+#pragma omp parallel num_threads(config.threads)
+    {
+        std::vector<std::vector<uint8_t>> reference;
+
+#pragma omp for
+        for (size_t i = 0; i < meta.number_of_bins; ++i)
         {
-            std::ofstream os{fmt::format("{}.{}.fmindex", config.output_path.c_str(), id), std::ios::binary};
-            cereal::BinaryOutputArchive oarchive{os};
-            oarchive(index);
+            read_reference_into(reference, meta, i);
+
+            fmc::BiFMIndex<5> index{reference, /*samplingRate*/ 16, config.threads};
+
+            {
+                std::ofstream os{fmt::format("{}.{}.fmindex", config.output_path.c_str(), i), std::ios::binary};
+                cereal::BinaryOutputArchive oarchive{os};
+                oarchive(index);
+            }
+
+            {
+                std::ofstream os{fmt::format("{}.{}.ref", config.output_path.c_str(), i), std::ios::binary};
+                cereal::BinaryOutputArchive oarchive{os};
+                oarchive(reference);
+            }
         }
     }
 }

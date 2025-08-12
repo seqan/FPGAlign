@@ -26,7 +26,7 @@ static inline constexpr uint64_t adjust_seed(uint8_t const kmer_size) noexcept
     return 0x8F3F73B5CF1C9ADEULL >> (64u - 2u * kmer_size);
 }
 
-threshold::threshold get_thresholder(config const & config)
+threshold::threshold get_thresholder(config const & config, meta const & meta)
 {
     size_t const first_sequence_size = [&]()
     {
@@ -35,8 +35,8 @@ threshold::threshold get_thresholder(config const & config)
         return record.sequence().size();
     }();
 
-    return {threshold::threshold_parameters{.window_size = config.window_size,
-                                            .shape = seqan3::ungapped{config.kmer_size},
+    return {threshold::threshold_parameters{.window_size = meta.window_size,
+                                            .shape = seqan3::ungapped{meta.kmer_size},
                                             .query_length = first_sequence_size,
                                             .errors = config.errors}};
 }
@@ -44,7 +44,7 @@ threshold::threshold get_thresholder(config const & config)
 using seqfile_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>>;
 using record_t = typename seqfile_t::record_type;
 
-std::vector<hit> ibf(config const & config, size_t & todo_bin_count)
+std::vector<hit> ibf(config const & config, meta & meta)
 {
     seqan::hibf::interleaved_bloom_filter ibf{};
 
@@ -53,9 +53,9 @@ std::vector<hit> ibf(config const & config, size_t & todo_bin_count)
         cereal::BinaryInputArchive iarchive{os};
         iarchive(ibf);
     }
-    todo_bin_count = ibf.bin_count();
+    assert(ibf.bin_count() == meta.number_of_bins);
 
-    std::vector<record_t> records = [&]()
+    meta.queries = [&]()
     {
         std::vector<record_t> result{};
         seqfile_t fin{config.query_path};
@@ -65,47 +65,28 @@ std::vector<hit> ibf(config const & config, size_t & todo_bin_count)
         return result;
     }();
 
-    std::vector<hit> hits(records.size());
+    std::vector<hit> hits(meta.queries.size());
 
 #pragma omp parallel num_threads(config.threads)
     {
         auto agent = ibf.membership_agent();
-        threshold::threshold const thresholder = get_thresholder(config);
-        auto minimiser_view = seqan3::views::minimiser_hash(seqan3::ungapped{config.kmer_size},
-                                                            seqan3::window_size{config.window_size},
-                                                            seqan3::seed{adjust_seed(config.kmer_size)});
+        threshold::threshold const thresholder = get_thresholder(config, meta);
+        auto minimiser_view = seqan3::views::minimiser_hash(seqan3::ungapped{meta.kmer_size},
+                                                            seqan3::window_size{meta.window_size},
+                                                            seqan3::seed{adjust_seed(meta.kmer_size)});
         std::vector<uint64_t> hashes;
 
 #pragma omp for
-        for (size_t i = 0; i < records.size(); ++i)
+        for (size_t i = 0; i < meta.queries.size(); ++i)
         {
-            auto & [id, seq] = records[i];
+            auto & [id, seq] = meta.queries[i];
             auto view = seq | minimiser_view | std::views::common;
             hashes.clear();
             hashes.assign(view.begin(), view.end());
 
             auto & result = agent.membership_for(hashes, thresholder.get(hashes.size()));
-            hits[i].id = std::move(id);
-            std::ranges::copy(std::move(seq)
-                                  | std::views::transform(
-                                      [](auto const & in)
-                                      {
-                                          return seqan3::to_rank(in) + 1u;
-                                      }),
-                              std::back_inserter(hits[i].seq));
             std::ranges::copy(result, std::back_inserter(hits[i].bins));
         }
-    }
-
-    for (auto & hit : hits)
-    {
-        std::cout << hit.id << ": ";
-        for (auto chr : hit.seq)
-            std::cout << static_cast<uint16_t>(chr);
-        std::cout << "\n    ";
-        for (auto bin : hit.bins)
-            std::cout << bin << ',';
-        std::cout << '\n';
     }
 
     return hits;
