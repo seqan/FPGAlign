@@ -34,7 +34,7 @@ std::vector<std::vector<uint8_t>> read_reference(std::vector<std::string> const 
                                   | std::views::transform(
                                       [](auto const & in)
                                       {
-                                          return seqan3::to_rank(in);
+                                          return seqan3::to_rank(in) + 1u;
                                       }),
                               std::back_inserter(reference.back()));
         }
@@ -48,7 +48,7 @@ void fmindex(config const & config)
     for (auto && [id, bin_paths] : seqan::stl::views::enumerate(parse_input(config)))
     {
         auto reference = read_reference(bin_paths);
-        fmc::BiFMIndex<4> index{reference, /*samplingRate*/ 16, config.threads};
+        fmc::BiFMIndex<5> index{reference, /*samplingRate*/ 16, config.threads};
 
         {
             std::ofstream os{fmt::format("{}.{}.fmindex", config.output_path.c_str(), id), std::ios::binary};
