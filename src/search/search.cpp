@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include <fmt/format.h>
-#include <fmt/ranges.h>
 
 #include <seqan3/alignment/cigar_conversion/cigar_from_alignment.hpp>
 #include <seqan3/alignment/pairwise/align_pairwise.hpp>
@@ -14,17 +13,6 @@
 
 namespace search
 {
-
-// auto format_as(wip_alignment wip)
-// {
-//     return fmt::format("(bin = {}, seqNo = {}, pos = {}, seq = {:d}, ref = {:d})",
-//                        wip.bin,
-//                        wip.sequence_number,
-//                        wip.position,
-//                        fmt::join(wip.seq, ""),
-//                        fmt::join(wip.ref, ""));
-// }
-
 void do_alignment(config const & config, meta & meta, std::vector<wip_alignment> const & wips)
 {
     seqan3::sam_file_output sam_out{config.output_path,
@@ -100,10 +88,6 @@ void search(config const & config)
     std::vector<hit> hits = ibf(config, meta);
     auto const res = fmindex(config, meta, std::move(hits));
     do_alignment(config, meta, res);
-    // for (auto const & elem : res)
-    // {
-    //     fmt::print("{}\n", elem);
-    // }
 }
 
 } // namespace search

@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include <seqan3/io/sequence_file/input.hpp>
-#include <seqan3/search/views/minimiser_hash.hpp>
 
 #include <hibf/config.hpp>
 #include <hibf/interleaved_bloom_filter.hpp>
 
 #include <fpgalign/build/build.hpp>
 #include <fpgalign/colored_strings.hpp>
+#include <fpgalign/contrib/minimiser_hash.hpp>
 
 namespace build
 {
@@ -18,11 +18,6 @@ struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
 {
     using sequence_alphabet = seqan3::dna4;
 };
-
-static inline constexpr uint64_t adjust_seed(uint8_t const kmer_size) noexcept
-{
-    return 0x8F3F73B5CF1C9ADEULL >> (64u - 2u * kmer_size);
-}
 
 void ibf(config const & config, meta & meta)
 {
@@ -33,9 +28,8 @@ void ibf(config const & config, meta & meta)
     {
         using sequence_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>>;
 
-        auto minimiser_view = seqan3::views::minimiser_hash(seqan3::ungapped{config.kmer_size},
-                                                            seqan3::window_size{config.window_size},
-                                                            seqan3::seed{adjust_seed(config.kmer_size)});
+        auto minimiser_view =
+            contrib::views::minimiser_hash({.kmer_size = config.kmer_size, .window_size = config.window_size});
 
         for (auto && bin_path : meta.bin_paths[user_bin_id])
         {
