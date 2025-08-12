@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -19,8 +20,44 @@ struct hit
     std::vector<uint64_t> bins;
 };
 
+struct wip_alignment
+{
+    size_t bin;
+    size_t sequence_number;
+    size_t position;
+    std::vector<uint8_t> seq;
+    std::vector<uint8_t> ref;
+    std::string id;
+};
+
+class alignment_vector
+{
+private:
+    std::vector<wip_alignment> data;
+    std::mutex mtx;
+
+public:
+    std::vector<wip_alignment> & get() noexcept
+    {
+        return data;
+    }
+
+    std::vector<wip_alignment> const & get() const noexcept
+    {
+        return data;
+    }
+
+    void emplace_back(wip_alignment elem)
+    {
+        std::lock_guard guard{mtx};
+        data.emplace_back(std::move(elem));
+    }
+
+    void emplace_back(wip_alignment & elem) = delete;
+};
+
 void search(config const & config);
 std::vector<hit> ibf(config const & config, size_t & todo_bin_count);
-void fmindex(config const & config, std::vector<hit> hits, size_t const todo_bin_count);
+std::vector<wip_alignment> fmindex(config const & config, std::vector<hit> hits, size_t const todo_bin_count);
 
 } // namespace search

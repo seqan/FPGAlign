@@ -90,7 +90,7 @@ std::vector<hit> ibf(config const & config, size_t & todo_bin_count)
                                   | std::views::transform(
                                       [](auto const & in)
                                       {
-                                          return seqan3::to_rank(in);
+                                          return seqan3::to_rank(in) + 1u;
                                       }),
                               std::back_inserter(hits[i].seq));
             std::ranges::copy(result, std::back_inserter(hits[i].bins));

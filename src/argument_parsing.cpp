@@ -25,7 +25,8 @@ config parse_arguments(sharg::parser & parser)
                                     .long_id = "output",
                                     .description = "Output path",
                                     .required = true,
-                                    .validator = sharg::output_file_validator{}}); // .ibf and .fmindex
+                                    .validator = sharg::output_file_validator{
+                                        sharg::output_file_open_options::open_or_create}}); // .ibf and .fmindex
     parser.add_option(config.threads,
                       sharg::config{.short_id = '\0',
                                     .long_id = "threads",
@@ -86,12 +87,13 @@ config parse_arguments(sharg::parser & parser)
                                     .description = "Query path",
                                     .required = true,
                                     .validator = sharg::input_file_validator{}});
-    parser.add_option(config.output_path,
-                      sharg::config{.short_id = '\0',
-                                    .long_id = "output",
-                                    .description = "Output path",
-                                    .required = true,
-                                    .validator = sharg::output_file_validator{}});
+    parser.add_option(
+        config.output_path,
+        sharg::config{.short_id = '\0',
+                      .long_id = "output",
+                      .description = "Output path",
+                      .required = true,
+                      .validator = sharg::output_file_validator{sharg::output_file_open_options::open_or_create}});
     parser.add_option(config.threads,
                       sharg::config{.short_id = '\0',
                                     .long_id = "threads",
