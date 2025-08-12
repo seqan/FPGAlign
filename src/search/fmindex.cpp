@@ -18,21 +18,21 @@
 namespace search
 {
 
-template <typename Index>
-auto myReconstruct(Index const & index, size_t seqNbr) -> std::vector<uint8_t>
-{
-    //TODO: möglicher weise ist das identisch zu einfach index.C[1]
-    auto totalNumberOfSeq = index.bwt.rank(index.size(), 0) + index.C[0];
-    for (size_t i{0}; i < totalNumberOfSeq; ++i)
-    {
-        auto idx = std::get<0>(std::get<0>(index.locate(i)));
-        if (idx == seqNbr)
-        {
-            return reconstructText(index, i);
-        }
-    }
-    throw std::runtime_error{"unknown sequence number"};
-}
+// template <typename Index>
+// auto myReconstruct(Index const & index, size_t seqNbr) -> std::vector<uint8_t>
+// {
+//     //TODO: möglicher weise ist das identisch zu einfach index.C[1]
+//     auto totalNumberOfSeq = index.bwt.rank(index.size(), 0) + index.C[0];
+//     for (size_t i{0}; i < totalNumberOfSeq; ++i)
+//     {
+//         auto idx = std::get<0>(std::get<0>(index.locate(i)));
+//         if (idx == seqNbr)
+//         {
+//             return reconstructText(index, i);
+//         }
+//     }
+//     throw std::runtime_error{"unknown sequence number"};
+// }
 
 fmc::BiFMIndex<5> load_index(config const & config, size_t const id)
 {
@@ -68,7 +68,7 @@ fmc::BiFMIndex<5> load_index(config const & config, size_t const id)
     return index;
 }
 
-std::vector<wip_alignment> fmindex(config const & config, std::vector<hit> hits, size_t const todo_bin_count)
+std::vector<wip_alignment> fmindex(config const & config, meta & meta, std::vector<hit> hits)
 {
     // todo bin count
     // todo capacity
@@ -76,7 +76,8 @@ std::vector<wip_alignment> fmindex(config const & config, std::vector<hit> hits,
     // a cart is full if it has 5 elements (hits)
     alignment_vector res;
     {
-        scq::slotted_cart_queue<size_t> queue{{.slots = todo_bin_count, .carts = todo_bin_count, .capacity = 5}};
+        scq::slotted_cart_queue<size_t> queue{
+            {.slots = meta.number_of_bins, .carts = meta.number_of_bins, .capacity = 5}};
         size_t thread_id{};
 
         auto get_thread = [&]()
@@ -93,30 +94,26 @@ std::vector<wip_alignment> fmindex(config const & config, std::vector<hit> hits,
                         auto index = load_index(config, slot.value);
                         for (auto idx : span)
                         {
-                            auto & [id, seq, bins] = hits[idx];
-
                             auto callback = [&](auto cursor, size_t)
                             {
                                 for (auto j : cursor)
                                 {
                                     auto [entry, offset] = index.locate(j);
                                     auto [seqId, pos] = entry;
-                                    // fmt::print("[{}][{}] found hit in bin {} in seqNo {} at Pos {}\n",
-                                    //            thread_id,
-                                    //            id,
-                                    //            slot.value,
-                                    //            seqId,
-                                    //            pos + offset);
                                     res.emplace_back(wip_alignment{.bin = slot.value,
                                                                    .sequence_number = seqId,
                                                                    .position = pos + offset,
-                                                                   .seq = seq,
-                                                                   .ref = myReconstruct(index, seqId),
-                                                                   .id = id}); // todo seq is copied
+                                                                   .idx = idx});
                                 }
                             };
 
-                            fmc::search<true>(index, seq, config.errors, callback);
+                            auto seq_view = std::views::transform(meta.queries[idx].sequence(),
+                                                                  [](seqan3::dna4 const in) -> uint8_t
+                                                                  {
+                                                                      return in.to_rank() + 1u;
+                                                                  });
+
+                            fmc::search<true>(index, seq_view, config.errors, callback);
                         }
                     }
                 });

@@ -15,17 +15,17 @@
 namespace search
 {
 
-auto format_as(wip_alignment wip)
-{
-    return fmt::format("(bin = {}, seqNo = {}, pos = {}, seq = {:d}, ref = {:d})",
-                       wip.bin,
-                       wip.sequence_number,
-                       wip.position,
-                       fmt::join(wip.seq, ""),
-                       fmt::join(wip.ref, ""));
-}
+// auto format_as(wip_alignment wip)
+// {
+//     return fmt::format("(bin = {}, seqNo = {}, pos = {}, seq = {:d}, ref = {:d})",
+//                        wip.bin,
+//                        wip.sequence_number,
+//                        wip.position,
+//                        fmt::join(wip.seq, ""),
+//                        fmt::join(wip.ref, ""));
+// }
 
-void do_alignment(config const & config, std::vector<wip_alignment> const & wips)
+void do_alignment(config const & config, meta & meta, std::vector<wip_alignment> const & wips)
 {
     seqan3::sam_file_output sam_out{config.output_path,
                                     seqan3::fields<seqan3::field::seq,
@@ -44,28 +44,33 @@ void do_alignment(config const & config, std::vector<wip_alignment> const & wips
         | seqan3::align_cfg::edit_scheme | seqan3::align_cfg::output_alignment{}
         | seqan3::align_cfg::output_begin_position{} | seqan3::align_cfg::output_score{};
 
-    for (auto & wip : wips)
+    for (auto [bin, sequence_number, position, idx] : wips)
     {
-        size_t const start = wip.position - static_cast<size_t>(wip.position != 0u);
-        size_t const length = wip.seq.size();
-        auto it = std::ranges::next(wip.ref.begin(), start, wip.ref.end());
-        auto end = std::ranges::next(it, length + 1u, wip.ref.end());
+        auto & seq = meta.queries[idx].sequence();
+        auto seq_view = std::views::transform(seq,
+                                              [](seqan3::dna4 const in) -> uint8_t
+                                              {
+                                                  return in.to_rank() + 1u;
+                                              });
+        auto & seq_id = meta.queries[idx].id();
+        auto & ref = meta.references[bin][sequence_number];
+        auto & ref_id = meta.ref_ids[bin][sequence_number];
+
+        size_t const start = position - static_cast<size_t>(position != 0u);
+        size_t const length = seq.size();
+        auto it = std::ranges::next(ref.begin(), start, ref.end());
+        auto end = std::ranges::next(it, length + 1u, ref.end());
         std::span ref_text{it, end};
 
-        for (auto && alignment : seqan3::align_pairwise(std::tie(ref_text, wip.seq), align_config))
+        for (auto && alignment : seqan3::align_pairwise(std::tie(ref_text, seq_view), align_config))
         {
             auto cigar = seqan3::cigar_from_alignment(alignment.alignment());
             size_t ref_offset = alignment.sequence1_begin_position() + 2 + start;
             size_t map_qual = 60u + alignment.score();
 
-            sam_out.emplace_back(std::views::transform(wip.seq,
-                                                       [](auto const in)
-                                                       {
-                                                           return seqan3::dna4{}.assign_rank(
-                                                               static_cast<uint8_t>(in - 1u));
-                                                       }),
-                                 wip.id,
-                                 fmt::format("{}", wip.sequence_number), // todo ref storage
+            sam_out.emplace_back(seq,
+                                 seq_id,
+                                 ref_id,
                                  ref_offset,
                                  cigar,
                                  //  record.base_qualities(),
@@ -76,10 +81,25 @@ void do_alignment(config const & config, std::vector<wip_alignment> const & wips
 
 void search(config const & config)
 {
-    size_t todo_bin_count{};
-    std::vector<hit> hits = ibf(config, todo_bin_count);
-    auto const res = fmindex(config, std::move(hits), todo_bin_count);
-    do_alignment(config, res);
+    meta meta{};
+    {
+        std::ifstream is{fmt::format("{}.meta", config.input_path.c_str()), std::ios::binary};
+        cereal::BinaryInputArchive iarchive{is};
+        iarchive(meta);
+    }
+
+    meta.references.resize(meta.number_of_bins);
+    for (size_t i = 0; i < meta.number_of_bins; ++i)
+    {
+
+        std::ifstream is{fmt::format("{}.{}.ref", config.input_path.c_str(), i), std::ios::binary};
+        cereal::BinaryInputArchive iarchive{is};
+        iarchive(meta.references[i]);
+    }
+
+    std::vector<hit> hits = ibf(config, meta);
+    auto const res = fmindex(config, meta, std::move(hits));
+    do_alignment(config, meta, res);
     // for (auto const & elem : res)
     // {
     //     fmt::print("{}\n", elem);
