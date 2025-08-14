@@ -12,15 +12,16 @@
 #include <tuple>      // for get
 #include <vector>     // for vector
 
-#include <seqan3/io/detail/misc.hpp>          // for set_format
-#include <seqan3/io/record.hpp>               // for field, fields
-#include <seqan3/io/sequence_file/record.hpp> // for sequence_record
-#include <seqan3/search/kmer_index/shape.hpp> // for shape, ungapped
+#include <seqan3/contrib/std/detail/adaptor_base.hpp> // for operator|
+#include <seqan3/io/detail/misc.hpp>                  // for set_format
+#include <seqan3/io/record.hpp>                       // for fields
+#include <seqan3/io/sequence_file/record.hpp>         // for sequence_record
+#include <seqan3/search/kmer_index/shape.hpp>         // for shape, ungapped
 
 #include <hibf/interleaved_bloom_filter.hpp> // for interleaved_bloom_filter
 
 #include <fpgalign/config.hpp>                     // for config
-#include <fpgalign/contrib/minimiser_hash.hpp>     // for minimiser_hash, operator==, operator|, minimiser_hash_fn
+#include <fpgalign/contrib/minimiser_hash.hpp>     // for minimiser_hash, operator==, minimiser_hash_fn
 #include <fpgalign/contrib/slotted_cart_queue.hpp> // for slotted_cart_queue, assert, slot_id
 #include <fpgalign/meta.hpp>                       // for meta, seqfile_t, record_t
 #include <fpgalign/search/search.hpp>              // for ibf
