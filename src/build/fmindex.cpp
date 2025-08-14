@@ -54,7 +54,7 @@ void fmindex(config const & config, meta & meta)
         {
             read_reference_into(reference, meta, i);
 
-            fmc::BiFMIndex<5> index{reference, /*samplingRate*/ 16, config.threads};
+            fmc::BiFMIndex<5> index{reference, /*samplingRate*/ 16, /*threads*/ 1u};
 
             {
                 std::ofstream os{fmt::format("{}.{}.fmindex", config.output_path.c_str(), i), std::ios::binary};

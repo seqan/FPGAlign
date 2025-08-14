@@ -39,7 +39,7 @@ threshold::threshold get_thresholder(config const & config, meta const & meta)
 using seqfile_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>>;
 using record_t = typename seqfile_t::record_type;
 
-std::vector<hit> ibf(config const & config, meta & meta)
+void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & filter_queue)
 {
     seqan::hibf::interleaved_bloom_filter ibf{};
 
@@ -60,8 +60,6 @@ std::vector<hit> ibf(config const & config, meta & meta)
         return result;
     }();
 
-    std::vector<hit> hits(meta.queries.size());
-
 #pragma omp parallel num_threads(config.threads)
     {
         auto agent = ibf.membership_agent();
@@ -80,11 +78,14 @@ std::vector<hit> ibf(config const & config, meta & meta)
             hashes.assign(view.begin(), view.end());
 
             auto & result = agent.membership_for(hashes, thresholder.get(hashes.size()));
-            std::ranges::copy(result, std::back_inserter(hits[i].bins));
+            for (size_t bin : result)
+            {
+                filter_queue.enqueue(scq::slot_id{bin}, i);
+            }
         }
     }
 
-    return hits;
+    filter_queue.close();
 }
 
 } // namespace search
