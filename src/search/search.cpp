@@ -27,8 +27,9 @@ void search(config const & config)
         iarchive(meta.references[i]);
     }
 
-    std::vector<hit> hits = ibf(config, meta);
-    auto const res = fmindex(config, meta, std::move(hits));
+    scq::slotted_cart_queue<size_t> queue{{.slots = meta.number_of_bins, .carts = meta.number_of_bins, .capacity = 5}};
+    ibf(config, meta, queue);
+    auto const res = fmindex(config, meta, queue);
     do_alignment(config, meta, res);
 }
 

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <fpgalign/config.hpp>
+#include <fpgalign/contrib/slotted_cart_queue.hpp>
 #include <fpgalign/meta.hpp>
 
 namespace search
@@ -54,8 +55,8 @@ public:
 };
 
 void search(config const & config);
-std::vector<hit> ibf(config const & config, meta & meta);
-std::vector<wip_alignment> fmindex(config const & config, meta & meta, std::vector<hit> hits);
+void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & queue);
+std::vector<wip_alignment> fmindex(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & queue);
 void do_alignment(config const & config, meta & meta, std::vector<wip_alignment> const & wips);
 
 } // namespace search

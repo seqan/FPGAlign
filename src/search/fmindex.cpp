@@ -30,15 +30,13 @@ fmc::BiFMIndex<5> load_index(config const & config, size_t const id)
     return index;
 }
 
-std::vector<wip_alignment> fmindex(config const & config, meta & meta, std::vector<hit> hits)
+std::vector<wip_alignment> fmindex(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & queue)
 {
     // todo capacity
     // each slot = 1 bin
     // a cart is full if it has 5 elements (hits)
     alignment_vector res;
     {
-        scq::slotted_cart_queue<size_t> queue{
-            {.slots = meta.number_of_bins, .carts = meta.number_of_bins, .capacity = 5}};
         size_t thread_id{};
 
         auto get_thread = [&]()
@@ -82,10 +80,6 @@ std::vector<wip_alignment> fmindex(config const & config, meta & meta, std::vect
 
         std::vector<std::jthread> worker(config.threads);
         std::ranges::generate(worker, get_thread);
-
-        for (auto && [idx, hit] : seqan::stl::views::enumerate(hits))
-            for (auto bin : hit.bins)
-                queue.enqueue(scq::slot_id{bin}, idx);
 
         queue.close();
     } // Wait for threads to finish
