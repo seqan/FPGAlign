@@ -2,15 +2,27 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <seqan3/io/sequence_file/input.hpp>
+#include <algorithm>  // for __copy, copy
+#include <cstddef>    // for size_t
+#include <filesystem> // for path
+#include <functional> // for function
+#include <iomanip>    // for operator<<, quoted
+#include <iostream>   // for basic_ostream, operator<<, basic_ios, cerr
+#include <string>     // for basic_string, char_traits
+#include <vector>     // for vector
 
-#include <hibf/config.hpp>
-#include <hibf/interleaved_bloom_filter.hpp>
+#include <seqan3/io/detail/misc.hpp> // for set_format
+#include <seqan3/io/record.hpp>      // for fields, field
 
-#include <fpgalign/build/build.hpp>
-#include <fpgalign/colored_strings.hpp>
-#include <fpgalign/contrib/minimiser_hash.hpp>
-#include <fpgalign/utility/ibf.hpp>
+#include <hibf/config.hpp>                   // for insert_iterator, config
+#include <hibf/interleaved_bloom_filter.hpp> // for interleaved_bloom_filter
+
+#include <fpgalign/build/build.hpp>            // for ibf
+#include <fpgalign/colored_strings.hpp>        // for colored_strings
+#include <fpgalign/config.hpp>                 // for config
+#include <fpgalign/contrib/minimiser_hash.hpp> // for minimiser_hash, operator|, minimiser_hash_fn, operator==
+#include <fpgalign/meta.hpp>                   // for meta, seqfile_t
+#include <fpgalign/utility/ibf.hpp>            // for store
 
 namespace build
 {

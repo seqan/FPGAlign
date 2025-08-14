@@ -2,17 +2,31 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <random>
+#include <algorithm>  // for __move, __shuffle, move, shuffle
+#include <cstddef>    // for size_t
+#include <cstdint>    // for uint64_t
+#include <filesystem> // for path
+#include <iterator>   // for back_insert_iterator, back_inserter, operator==
+#include <random>     // for mt19937_64
+#include <ranges>     // for common_view, operator|, __fn, common, views
+#include <tuple>      // for get
+#include <vector>     // for vector
 
-#include <seqan3/io/sequence_file/input.hpp>
+#include <seqan3/io/detail/misc.hpp>          // for set_format
+#include <seqan3/io/record.hpp>               // for field, fields
+#include <seqan3/io/sequence_file/record.hpp> // for sequence_record
+#include <seqan3/search/kmer_index/shape.hpp> // for shape, ungapped
 
-#include <hibf/config.hpp>
-#include <hibf/interleaved_bloom_filter.hpp>
+#include <hibf/interleaved_bloom_filter.hpp> // for interleaved_bloom_filter
 
-#include <fpgalign/contrib/minimiser_hash.hpp>
-#include <fpgalign/search/search.hpp>
-#include <fpgalign/utility/ibf.hpp>
-#include <threshold/threshold.hpp>
+#include <fpgalign/config.hpp>                     // for config
+#include <fpgalign/contrib/minimiser_hash.hpp>     // for minimiser_hash, operator==, operator|, minimiser_hash_fn
+#include <fpgalign/contrib/slotted_cart_queue.hpp> // for slotted_cart_queue, assert, slot_id
+#include <fpgalign/meta.hpp>                       // for meta, seqfile_t, record_t
+#include <fpgalign/search/search.hpp>              // for ibf
+#include <fpgalign/utility/ibf.hpp>                // for load
+#include <threshold/threshold.hpp>                 // for threshold
+#include <threshold/threshold_parameters.hpp>      // for threshold_parameters
 
 namespace search
 {

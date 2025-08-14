@@ -9,7 +9,10 @@
 
 #include <seqan3/alphabet/nucleotide/dna4.hpp>
 
+// IWYU pragma: begin_exports
+#include <hibf/contrib/std/detail/adaptor_base.hpp>
 #include <hibf/contrib/std/detail/adaptor_from_functor.hpp>
+// IWYU pragma: end_exports
 
 // Same as seqan3::views::minimiser_hash, but optimized for dna4, with integrated adjust_seed
 

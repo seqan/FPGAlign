@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <cstdint> // for uint8_t
+#include <string>  // for string
+#include <vector>  // for vector
 
-#include <fpgalign/config.hpp>
+#include <fpgalign/config.hpp> // for config
 
 enum class subcommand : uint8_t
 {

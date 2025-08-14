@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include <fmindex-collection/fmindex/BiFMIndex.h>
+#include <cstddef> // for size_t
 
-#include <fpgalign/config.hpp>
+#include <fmindex-collection/fmindex/BiFMIndex.h> // for BiFMIndex
+
+#include <fpgalign/config.hpp> // for config
 
 namespace utility
 {

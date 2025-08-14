@@ -2,13 +2,19 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <fstream>
+#include <cstring>    // for memcmp
+#include <filesystem> // for path
+#include <fstream>    // for basic_ifstream, basic_ofstream, basic_ios, ios, ifstream, ofstream
+#include <string>     // for basic_string
 
-#include <fmt/format.h>
+#include <fmt/format.h> // for format
 
-#include <cereal/archives/binary.hpp>
+#include <hibf/interleaved_bloom_filter.hpp> // for interleaved_bloom_filter
 
-#include <fpgalign/utility/ibf.hpp>
+#include <cereal/archives/binary.hpp> // for BinaryInputArchive, BinaryOutputArchive
+
+#include <fpgalign/config.hpp>      // for config
+#include <fpgalign/utility/ibf.hpp> // for load, store
 
 namespace utility
 {
