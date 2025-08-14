@@ -32,6 +32,7 @@ jobs:
         uses: seqan/actions/iwyu@main
         with:
           configure_path: .
+          additional_mapping: .github/config/custom.imp
           token: ${{ secrets.SEQAN_ACTIONS_PAT }}
           gpg_key: ${{ secrets.SEQAN_ACTIONS_GPG_KEY }}
           gpg_passphrase: ${{ secrets.SEQAN_ACTIONS_GPG_PASSPHRASE }}
