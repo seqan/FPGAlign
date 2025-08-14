@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include <fpgalign/config.hpp>
-#include <fpgalign/contrib/slotted_cart_queue.hpp>
-#include <fpgalign/meta.hpp>
+#include <cstddef> // for size_t
+
+#include <fpgalign/config.hpp>                     // for config
+#include <fpgalign/contrib/slotted_cart_queue.hpp> // for slotted_cart_queue
+#include <fpgalign/meta.hpp>                       // for meta
 
 namespace search
 {

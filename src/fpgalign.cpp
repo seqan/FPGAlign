@@ -2,13 +2,16 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <iostream>
+#include <cstdlib>   // for exit
+#include <exception> // for exception
+#include <iostream>  // for char_traits, basic_ostream, operator<<, cerr
+#include <string>    // for basic_string
+#include <vector>    // for vector
 
-#include <fpgalign/argument_parsing.hpp>
-#include <fpgalign/build/build.hpp>
-#include <fpgalign/colored_strings.hpp>
-#include <fpgalign/config.hpp>
-#include <fpgalign/search/search.hpp>
+#include <fpgalign/argument_parsing.hpp> // for parse_result, subcommand, parse_arguments
+#include <fpgalign/build/build.hpp>      // for build
+#include <fpgalign/colored_strings.hpp>  // for colored_strings
+#include <fpgalign/search/search.hpp>    // for search
 
 int main(int argc, char ** argv)
 {

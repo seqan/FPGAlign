@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <filesystem>
+#include <cstdint>    // for uint8_t, uint16_t, uint32_t
+#include <filesystem> // for path
 
 struct config
 {

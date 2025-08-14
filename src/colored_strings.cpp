@@ -2,11 +2,14 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <fmt/color.h>
+#include <cstring> // for memcmp
+#include <string>  // for string, basic_string
 
-#include <sharg/detail/terminal.hpp>
+#include <fmt/color.h> // for color, fg, format
 
-#include <fpgalign/colored_strings.hpp>
+#include <sharg/detail/terminal.hpp> // for stderr_is_terminal
+
+#include <fpgalign/colored_strings.hpp> // for colored_strings
 
 bool const colored_strings::cerr_is_terminal = sharg::detail::stderr_is_terminal();
 

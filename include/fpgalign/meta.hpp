@@ -4,14 +4,17 @@
 
 #pragma once
 
-#include <filesystem>
-#include <string>
-#include <vector>
+#include <cstddef> // for size_t
+#include <cstdint> // for uint8_t, uint32_t
+#include <string>  // for basic_string, string
+#include <vector>  // for vector
 
-#include <seqan3/io/sequence_file/input.hpp>
+#include <seqan3/alphabet/nucleotide/dna4.hpp> // for dna4
+#include <seqan3/io/detail/misc.hpp>           // for set_format
+#include <seqan3/io/record.hpp>                // for field, fields
+#include <seqan3/io/sequence_file/input.hpp>   // for sequence_file_input, sequence_file_input_default_traits_dna
 
-#include <cereal/types/string.hpp>
-#include <cereal/types/vector.hpp>
+#include <cereal/macros.hpp> // for CEREAL_SERIALIZE_FUNCTION_NAME
 
 struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
 {

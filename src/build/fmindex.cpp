@@ -2,11 +2,28 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <fmindex-collection/fmindex/BiFMIndex.h>
+#include <algorithm>  // for __copy, copy
+#include <cstddef>    // for size_t
+#include <cstdint>    // for uint8_t
+#include <filesystem> // for path
+#include <iterator>   // for back_insert_iterator, back_inserter
+#include <ranges>     // for transform_view, views, operator|, __pipeable, __fn, operat...
+#include <string>     // for basic_string
+#include <tuple>      // for get
+#include <vector>     // for vector
 
-#include <fpgalign/build/build.hpp>
-#include <fpgalign/utility/fmindex.hpp>
-#include <fpgalign/utility/reference.hpp>
+#include <seqan3/alphabet/concept.hpp> // for to_rank
+#include <seqan3/io/detail/misc.hpp>   // for set_format
+#include <seqan3/io/record.hpp>        // for fields, field
+
+#include <fmindex-collection/fmindex/BiFMIndex.h> // for BiFMIndex
+
+#include <fpgalign/build/build.hpp>       // for fmindex
+#include <fpgalign/config.hpp>            // for config
+#include <fpgalign/meta.hpp>              // for meta, seqfile_t
+#include <fpgalign/utility/fmindex.hpp>   // for store
+#include <fpgalign/utility/reference.hpp> // for store
+#include <std/detail/adaptor_base.hpp>    // for operator|
 
 namespace build
 {
