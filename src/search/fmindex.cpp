@@ -2,33 +2,15 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <fmt/format.h>
-
-#include <seqan3/io/sequence_file/input.hpp>
-
-#include <hibf/contrib/std/enumerate_view.hpp>
-
 #include <fmindex-collection/fmindex/BiFMIndex.h>
 #include <fmindex-collection/search/search.h>
 
 #include <fpgalign/contrib/slotted_cart_queue.hpp>
 #include <fpgalign/search/search.hpp>
+#include <fpgalign/utility/fmindex.hpp>
 
 namespace search
 {
-
-fmc::BiFMIndex<5> load_index(config const & config, size_t const id)
-{
-    fmc::BiFMIndex<5> index{};
-
-    {
-        std::ifstream os{fmt::format("{}.{}.fmindex", config.input_path.c_str(), id), std::ios::binary};
-        cereal::BinaryInputArchive iarchive{os};
-        iarchive(index);
-    }
-
-    return index;
-}
 
 void fmindex(config const & config,
              meta & meta,
@@ -43,7 +25,8 @@ void fmindex(config const & config,
             if (!cart.valid())
                 break;
             auto [slot, span] = cart.get();
-            auto index = load_index(config, slot.value);
+            fmc::BiFMIndex<5> index{};
+            utility::load(index, config, slot.value);
             for (auto idx : span)
             {
                 auto callback = [&](auto cursor, size_t)

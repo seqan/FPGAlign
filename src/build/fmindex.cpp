@@ -2,21 +2,14 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <fmt/format.h>
-
-#include <seqan3/io/sequence_file/input.hpp>
-
 #include <fmindex-collection/fmindex/BiFMIndex.h>
 
 #include <fpgalign/build/build.hpp>
+#include <fpgalign/utility/fmindex.hpp>
+#include <fpgalign/utility/reference.hpp>
 
 namespace build
 {
-
-struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
-{
-    using sequence_alphabet = seqan3::dna4;
-};
 
 void read_reference_into(std::vector<std::vector<uint8_t>> & reference, meta & meta, size_t const i)
 {
@@ -24,7 +17,7 @@ void read_reference_into(std::vector<std::vector<uint8_t>> & reference, meta & m
 
     for (auto const & bin_path : meta.bin_paths[i])
     {
-        seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq, seqan3::field::id>> fin{bin_path};
+        seqfile_t fin{bin_path};
 
         for (auto && record : fin)
         {
@@ -56,17 +49,8 @@ void fmindex(config const & config, meta & meta)
 
             fmc::BiFMIndex<5> index{reference, /*samplingRate*/ 16, /*threads*/ 1u};
 
-            {
-                std::ofstream os{fmt::format("{}.{}.fmindex", config.output_path.c_str(), i), std::ios::binary};
-                cereal::BinaryOutputArchive oarchive{os};
-                oarchive(index);
-            }
-
-            {
-                std::ofstream os{fmt::format("{}.{}.ref", config.output_path.c_str(), i), std::ios::binary};
-                cereal::BinaryOutputArchive oarchive{os};
-                oarchive(reference);
-            }
+            utility::store(index, config, i);
+            utility::store(reference, config, i);
         }
     }
 }

@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <fmt/format.h>
-
 #include <fpgalign/search/search.hpp>
+#include <fpgalign/utility/meta.hpp>
+#include <fpgalign/utility/reference.hpp>
 
 namespace search
 {
@@ -12,20 +12,11 @@ namespace search
 void search(config const & config)
 {
     meta meta{};
-    {
-        std::ifstream is{fmt::format("{}.meta", config.input_path.c_str()), std::ios::binary};
-        cereal::BinaryInputArchive iarchive{is};
-        iarchive(meta);
-    }
+    utility::load(meta, config);
 
     meta.references.resize(meta.number_of_bins);
     for (size_t i = 0; i < meta.number_of_bins; ++i)
-    {
-
-        std::ifstream is{fmt::format("{}.{}.ref", config.input_path.c_str(), i), std::ios::binary};
-        cereal::BinaryInputArchive iarchive{is};
-        iarchive(meta.references[i]);
-    }
+        utility::load(meta.references[i], config, i);
 
     // todo capacity
     // each slot = 1 bin
