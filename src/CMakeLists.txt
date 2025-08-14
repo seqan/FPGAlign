@@ -13,6 +13,7 @@ set (FPGAlign_SOURCE_FILES
         search/ibf.cpp
         search/fmindex.cpp
         search/search.cpp
+        search/do_alignment.cpp
 )
 
 # An object library (without main) to be used in multiple targets.

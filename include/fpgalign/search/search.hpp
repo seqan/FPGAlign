@@ -56,5 +56,6 @@ public:
 void search(config const & config);
 std::vector<hit> ibf(config const & config, meta & meta);
 std::vector<wip_alignment> fmindex(config const & config, meta & meta, std::vector<hit> hits);
+void do_alignment(config const & config, meta & meta, std::vector<wip_alignment> const & wips);
 
 } // namespace search
