@@ -10,14 +10,10 @@
 #include <fpgalign/build/build.hpp>
 #include <fpgalign/colored_strings.hpp>
 #include <fpgalign/contrib/minimiser_hash.hpp>
+#include <fpgalign/utility/ibf.hpp>
 
 namespace build
 {
-
-struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
-{
-    using sequence_alphabet = seqan3::dna4;
-};
 
 void ibf(config const & config, meta & meta)
 {
@@ -26,14 +22,12 @@ void ibf(config const & config, meta & meta)
 
     auto get_user_bin_data = [&](size_t const user_bin_id, seqan::hibf::insert_iterator it)
     {
-        using sequence_file_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::seq>>;
-
-        auto minimiser_view =
-            contrib::views::minimiser_hash({.kmer_size = config.kmer_size, .window_size = config.window_size});
+        auto minimiser_view = contrib::views::minimiser_hash({.kmer_size = config.kmer_size, //
+                                                              .window_size = config.window_size});
 
         for (auto && bin_path : meta.bin_paths[user_bin_id])
         {
-            sequence_file_t fin{bin_path};
+            seqfile_t fin{bin_path};
             for (auto && record : fin)
             {
                 if (size_t const record_size = record.sequence().size(); record_size < config.window_size)
@@ -41,8 +35,8 @@ void ibf(config const & config, meta & meta)
 #pragma omp critical
                     {
                         std::cerr << colored_strings::cerr::warning << "File " << std::quoted(bin_path)
-                                  << " contains a sequence of length " << record_size
-                                  << ". This is shorter than the window size (" << config.window_size
+                                  << " contains a sequence of length " << record_size << " (ID=" << record.id()
+                                  << "). This is shorter than the window size (" << config.window_size
                                   << ") and will result in no k-mers being generated for this sequence. A user bin "
                                      "without k-mers will result in an error.\n";
                     }
@@ -60,11 +54,7 @@ void ibf(config const & config, meta & meta)
 
     seqan::hibf::interleaved_bloom_filter ibf{ibf_config};
 
-    {
-        std::ofstream os{config.output_path.string() + ".ibf", std::ios::binary};
-        cereal::BinaryOutputArchive oarchive{os};
-        oarchive(ibf);
-    }
+    utility::store(ibf, config);
 }
 
 } // namespace build

@@ -6,11 +6,9 @@
 #include <fstream>
 #include <sstream>
 
-#include <fmt/format.h>
-
-#include <cereal/archives/binary.hpp>
 #include <fpgalign/build/build.hpp>
 #include <fpgalign/meta.hpp>
+#include <fpgalign/utility/meta.hpp>
 
 namespace build
 {
@@ -50,11 +48,7 @@ void build(config const & config)
     assert(meta.window_size == config.window_size);
     build::fmindex(config, meta);
 
-    {
-        std::ofstream os{fmt::format("{}.meta", config.output_path.c_str()), std::ios::binary};
-        cereal::BinaryOutputArchive oarchive{os};
-        oarchive(meta);
-    }
+    utility::store(meta, config);
 }
 
 } // namespace build

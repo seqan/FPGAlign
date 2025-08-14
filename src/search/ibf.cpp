@@ -11,21 +11,17 @@
 
 #include <fpgalign/contrib/minimiser_hash.hpp>
 #include <fpgalign/search/search.hpp>
+#include <fpgalign/utility/ibf.hpp>
 #include <threshold/threshold.hpp>
 
 namespace search
 {
 
-struct dna4_traits : seqan3::sequence_file_input_default_traits_dna
-{
-    using sequence_alphabet = seqan3::dna4;
-};
-
 threshold::threshold get_thresholder(config const & config, meta const & meta)
 {
     size_t const first_sequence_size = [&]()
     {
-        seqan3::sequence_file_input<dna4_traits> fin{config.query_path};
+        seqfile_t fin{config.query_path};
         auto & record = *fin.begin();
         return record.sequence().size();
     }();
@@ -36,18 +32,11 @@ threshold::threshold get_thresholder(config const & config, meta const & meta)
                                             .errors = config.errors}};
 }
 
-using seqfile_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>>;
-using record_t = typename seqfile_t::record_type;
-
 void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & filter_queue)
 {
     seqan::hibf::interleaved_bloom_filter ibf{};
+    utility::load(ibf, config);
 
-    {
-        std::ifstream os{config.input_path.string() + ".ibf", std::ios::binary};
-        cereal::BinaryInputArchive iarchive{os};
-        iarchive(ibf);
-    }
     assert(ibf.bin_count() == meta.number_of_bins);
 
     meta.queries = [&]()
@@ -64,8 +53,8 @@ void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & f
     {
         auto agent = ibf.membership_agent();
         threshold::threshold const thresholder = get_thresholder(config, meta);
-        auto minimiser_view =
-            contrib::views::minimiser_hash({.kmer_size = meta.kmer_size, .window_size = meta.window_size});
+        auto minimiser_view = contrib::views::minimiser_hash({.kmer_size = meta.kmer_size, //
+                                                              .window_size = meta.window_size});
 
         std::vector<uint64_t> hashes;
 

@@ -14,6 +14,10 @@ set (FPGAlign_SOURCE_FILES
         search/fmindex.cpp
         search/search.cpp
         search/do_alignment.cpp
+        utility/ibf.cpp
+        utility/fmindex.cpp
+        utility/meta.cpp
+        utility/reference.cpp
 )
 
 # An object library (without main) to be used in multiple targets.
