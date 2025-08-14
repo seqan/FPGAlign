@@ -20,7 +20,7 @@ using sam_out_t = seqan3::sam_file_output<seqan3::fields<seqan3::field::seq,
                                                          //    seqan3::field::qual,
                                                          seqan3::field::mapq>>;
 
-void task(meta & meta, std::span<wip_alignment> wip, sam_out_t & sam_out)
+void task(meta & meta, std::span<alignment_info> alignment_infos, sam_out_t & sam_out)
 {
     static seqan3::configuration const align_config =
         seqan3::align_cfg::method_global{seqan3::align_cfg::free_end_gaps_sequence1_leading{true},
@@ -30,7 +30,7 @@ void task(meta & meta, std::span<wip_alignment> wip, sam_out_t & sam_out)
         | seqan3::align_cfg::edit_scheme | seqan3::align_cfg::output_alignment{}
         | seqan3::align_cfg::output_begin_position{} | seqan3::align_cfg::output_score{};
 
-    for (auto & [bin, sequence_number, position, idx] : wip)
+    for (auto & [bin, sequence_number, position, idx] : alignment_infos)
     {
         auto & seq = meta.queries[idx].sequence();
         auto seq_view = std::views::transform(seq,
@@ -65,13 +65,13 @@ void task(meta & meta, std::span<wip_alignment> wip, sam_out_t & sam_out)
     }
 }
 
-void do_alignment(config const & config, meta & meta, scq::slotted_cart_queue<wip_alignment> & alignment_queue)
+void do_alignment(config const & config, meta & meta, scq::slotted_cart_queue<alignment_info> & alignment_queue)
 {
     sam_out_t sam_out{config.output_path};
 
     while (true)
     {
-        scq::cart_future<wip_alignment> cart = alignment_queue.dequeue();
+        scq::cart_future<alignment_info> cart = alignment_queue.dequeue();
         if (!cart.valid())
             return;
 

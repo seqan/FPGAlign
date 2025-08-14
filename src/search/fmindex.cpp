@@ -33,7 +33,7 @@ fmc::BiFMIndex<5> load_index(config const & config, size_t const id)
 void fmindex(config const & config,
              meta & meta,
              scq::slotted_cart_queue<size_t> & filter_queue,
-             scq::slotted_cart_queue<wip_alignment> & alignment_queue)
+             scq::slotted_cart_queue<alignment_info> & alignment_queue)
 {
 #pragma omp parallel num_threads(config.threads)
     {
@@ -53,10 +53,10 @@ void fmindex(config const & config,
                         auto [entry, offset] = index.locate(j);
                         auto [seqId, pos] = entry;
                         alignment_queue.enqueue(scq::slot_id{0u},
-                                                wip_alignment{.bin = slot.value,
-                                                              .sequence_number = seqId,
-                                                              .position = pos + offset,
-                                                              .idx = idx});
+                                                alignment_info{.bin = slot.value,
+                                                               .sequence_number = seqId,
+                                                               .position = pos + offset,
+                                                               .idx = idx});
                     }
                 };
 

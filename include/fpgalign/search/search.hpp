@@ -4,10 +4,6 @@
 
 #pragma once
 
-#include <mutex>
-#include <string>
-#include <vector>
-
 #include <fpgalign/config.hpp>
 #include <fpgalign/contrib/slotted_cart_queue.hpp>
 #include <fpgalign/meta.hpp>
@@ -15,12 +11,7 @@
 namespace search
 {
 
-struct hit
-{
-    std::vector<uint64_t> bins;
-};
-
-struct wip_alignment
+struct alignment_info
 {
     size_t bin;
     size_t sequence_number;
@@ -28,38 +19,12 @@ struct wip_alignment
     size_t idx;
 };
 
-class alignment_vector
-{
-private:
-    std::vector<wip_alignment> data;
-    std::mutex mtx;
-
-public:
-    std::vector<wip_alignment> & get() noexcept
-    {
-        return data;
-    }
-
-    std::vector<wip_alignment> const & get() const noexcept
-    {
-        return data;
-    }
-
-    void emplace_back(wip_alignment elem)
-    {
-        std::lock_guard guard{mtx};
-        data.emplace_back(std::move(elem));
-    }
-
-    void emplace_back(wip_alignment & elem) = delete;
-};
-
 void search(config const & config);
 void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & filter_queue);
 void fmindex(config const & config,
              meta & meta,
              scq::slotted_cart_queue<size_t> & filter_queue,
-             scq::slotted_cart_queue<wip_alignment> & alignment_queue);
-void do_alignment(config const & config, meta & meta, scq::slotted_cart_queue<wip_alignment> & alignment_queue);
+             scq::slotted_cart_queue<alignment_info> & alignment_queue);
+void do_alignment(config const & config, meta & meta, scq::slotted_cart_queue<alignment_info> & alignment_queue);
 
 } // namespace search

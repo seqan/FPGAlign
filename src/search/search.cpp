@@ -30,9 +30,12 @@ void search(config const & config)
     // todo capacity
     // each slot = 1 bin
     // a cart is full if it has capacity many elements (hits)
-    scq::slotted_cart_queue<size_t> filter_queue{
-        {.slots = meta.number_of_bins, .carts = meta.number_of_bins, .capacity = 1u}};
-    scq::slotted_cart_queue<wip_alignment> alignment_queue{{.slots = 1u, .carts = 1u, .capacity = 1u}};
+    scq::slotted_cart_queue<size_t> filter_queue{{.slots = meta.number_of_bins, //
+                                                  .carts = meta.number_of_bins,
+                                                  .capacity = 1u}};
+    scq::slotted_cart_queue<alignment_info> alignment_queue{{.slots = 1u, //
+                                                             .carts = 1u,
+                                                             .capacity = 1u}};
 
     std::jthread ibf_thread(
         [&]()
