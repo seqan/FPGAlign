@@ -55,8 +55,11 @@ public:
 };
 
 void search(config const & config);
-void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & queue);
-std::vector<wip_alignment> fmindex(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & queue);
-void do_alignment(config const & config, meta & meta, std::vector<wip_alignment> const & wips);
+void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & filter_queue);
+void fmindex(config const & config,
+             meta & meta,
+             scq::slotted_cart_queue<size_t> & filter_queue,
+             scq::slotted_cart_queue<wip_alignment> & alignment_queue);
+void do_alignment(config const & config, meta & meta, scq::slotted_cart_queue<wip_alignment> & alignment_queue);
 
 } // namespace search

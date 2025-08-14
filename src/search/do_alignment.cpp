@@ -12,18 +12,17 @@
 namespace search
 {
 
-void do_alignment(config const & config, meta & meta, std::vector<wip_alignment> const & wips)
-{
-    seqan3::sam_file_output sam_out{config.output_path,
-                                    seqan3::fields<seqan3::field::seq,
-                                                   seqan3::field::id,
-                                                   seqan3::field::ref_id,
-                                                   seqan3::field::ref_offset,
-                                                   seqan3::field::cigar,
-                                                   //    seqan3::field::qual,
-                                                   seqan3::field::mapq>{}};
+using sam_out_t = seqan3::sam_file_output<seqan3::fields<seqan3::field::seq,
+                                                         seqan3::field::id,
+                                                         seqan3::field::ref_id,
+                                                         seqan3::field::ref_offset,
+                                                         seqan3::field::cigar,
+                                                         //    seqan3::field::qual,
+                                                         seqan3::field::mapq>>;
 
-    seqan3::configuration const align_config =
+void task(meta & meta, std::span<wip_alignment> wip, sam_out_t & sam_out)
+{
+    static seqan3::configuration const align_config =
         seqan3::align_cfg::method_global{seqan3::align_cfg::free_end_gaps_sequence1_leading{true},
                                          seqan3::align_cfg::free_end_gaps_sequence2_leading{false},
                                          seqan3::align_cfg::free_end_gaps_sequence1_trailing{true},
@@ -31,7 +30,7 @@ void do_alignment(config const & config, meta & meta, std::vector<wip_alignment>
         | seqan3::align_cfg::edit_scheme | seqan3::align_cfg::output_alignment{}
         | seqan3::align_cfg::output_begin_position{} | seqan3::align_cfg::output_score{};
 
-    for (auto [bin, sequence_number, position, idx] : wips)
+    for (auto & [bin, sequence_number, position, idx] : wip)
     {
         auto & seq = meta.queries[idx].sequence();
         auto seq_view = std::views::transform(seq,
@@ -63,6 +62,20 @@ void do_alignment(config const & config, meta & meta, std::vector<wip_alignment>
                                  //  record.base_qualities(),
                                  map_qual);
         }
+    }
+}
+
+void do_alignment(config const & config, meta & meta, scq::slotted_cart_queue<wip_alignment> & alignment_queue)
+{
+    sam_out_t sam_out{config.output_path};
+
+    while (true)
+    {
+        scq::cart_future<wip_alignment> cart = alignment_queue.dequeue();
+        if (!cart.valid())
+            return;
+
+        task(meta, cart.get().second, sam_out);
     }
 }
 

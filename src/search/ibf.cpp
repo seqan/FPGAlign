@@ -39,7 +39,7 @@ threshold::threshold get_thresholder(config const & config, meta const & meta)
 using seqfile_t = seqan3::sequence_file_input<dna4_traits, seqan3::fields<seqan3::field::id, seqan3::field::seq>>;
 using record_t = typename seqfile_t::record_type;
 
-void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & queue)
+void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & filter_queue)
 {
     seqan::hibf::interleaved_bloom_filter ibf{};
 
@@ -80,10 +80,12 @@ void ibf(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & q
             auto & result = agent.membership_for(hashes, thresholder.get(hashes.size()));
             for (size_t bin : result)
             {
-                queue.enqueue(scq::slot_id{bin}, i);
+                filter_queue.enqueue(scq::slot_id{bin}, i);
             }
         }
     }
+
+    filter_queue.close();
 }
 
 } // namespace search

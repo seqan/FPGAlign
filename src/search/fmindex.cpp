@@ -30,61 +30,48 @@ fmc::BiFMIndex<5> load_index(config const & config, size_t const id)
     return index;
 }
 
-std::vector<wip_alignment> fmindex(config const & config, meta & meta, scq::slotted_cart_queue<size_t> & queue)
+void fmindex(config const & config,
+             meta & meta,
+             scq::slotted_cart_queue<size_t> & filter_queue,
+             scq::slotted_cart_queue<wip_alignment> & alignment_queue)
 {
-    // todo capacity
-    // each slot = 1 bin
-    // a cart is full if it has 5 elements (hits)
-    alignment_vector res;
+#pragma omp parallel num_threads(config.threads)
     {
-        size_t thread_id{};
-
-        auto get_thread = [&]()
+        while (true)
         {
-            return std::jthread(
-                [&, thread_id = thread_id++]()
+            scq::cart_future<size_t> cart = filter_queue.dequeue();
+            if (!cart.valid())
+                break;
+            auto [slot, span] = cart.get();
+            auto index = load_index(config, slot.value);
+            for (auto idx : span)
+            {
+                auto callback = [&](auto cursor, size_t)
                 {
-                    while (true)
+                    for (auto j : cursor)
                     {
-                        scq::cart_future<size_t> cart = queue.dequeue();
-                        if (!cart.valid())
-                            return;
-                        auto [slot, span] = cart.get();
-                        auto index = load_index(config, slot.value);
-                        for (auto idx : span)
-                        {
-                            auto callback = [&](auto cursor, size_t)
-                            {
-                                for (auto j : cursor)
-                                {
-                                    auto [entry, offset] = index.locate(j);
-                                    auto [seqId, pos] = entry;
-                                    res.emplace_back(wip_alignment{.bin = slot.value,
-                                                                   .sequence_number = seqId,
-                                                                   .position = pos + offset,
-                                                                   .idx = idx});
-                                }
-                            };
-
-                            auto seq_view = std::views::transform(meta.queries[idx].sequence(),
-                                                                  [](seqan3::dna4 const in) -> uint8_t
-                                                                  {
-                                                                      return in.to_rank() + 1u;
-                                                                  });
-
-                            fmc::search<true>(index, seq_view, config.errors, callback);
-                        }
+                        auto [entry, offset] = index.locate(j);
+                        auto [seqId, pos] = entry;
+                        alignment_queue.enqueue(scq::slot_id{0u},
+                                                wip_alignment{.bin = slot.value,
+                                                              .sequence_number = seqId,
+                                                              .position = pos + offset,
+                                                              .idx = idx});
                     }
-                });
-        };
+                };
 
-        std::vector<std::jthread> worker(config.threads);
-        std::ranges::generate(worker, get_thread);
+                auto seq_view = std::views::transform(meta.queries[idx].sequence(),
+                                                      [](seqan3::dna4 const in) -> uint8_t
+                                                      {
+                                                          return in.to_rank() + 1u;
+                                                      });
 
-        queue.close();
-    } // Wait for threads to finish
+                fmc::search<true>(index, seq_view, config.errors, callback);
+            }
+        }
+    }
 
-    return res.get();
+    alignment_queue.close();
 }
 
 } // namespace search
