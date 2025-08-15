@@ -15,10 +15,10 @@ namespace search
 
 struct alignment_info
 {
-    size_t bin;
-    size_t sequence_number;
-    size_t position;
-    size_t idx;
+    // bin is given via the slot number in the alignment_queue
+    size_t query_idx;
+    size_t reference_number;
+    size_t reference_position;
 };
 
 void search(config const & config);

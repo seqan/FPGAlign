@@ -18,6 +18,7 @@ struct config
     std::filesystem::path input_path{};
     std::filesystem::path output_path{};
     std::filesystem::path query_path{};
-    uint8_t errors{};
+    uint8_t errors{0u};
     uint16_t threads{1u};
+    size_t queue_capacity{1u};
 };

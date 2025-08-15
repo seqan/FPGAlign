@@ -22,6 +22,30 @@
 #include <fpgalign/argument_parsing.hpp> // for parse_result, subcommand, parse_arguments
 #include <fpgalign/config.hpp>           // for config
 
+class positive_integer_validator
+{
+public:
+    using option_value_type = size_t;
+
+    positive_integer_validator() = default;
+    positive_integer_validator(positive_integer_validator const &) = default;
+    positive_integer_validator & operator=(positive_integer_validator const &) = default;
+    positive_integer_validator(positive_integer_validator &&) = default;
+    positive_integer_validator & operator=(positive_integer_validator &&) = default;
+    ~positive_integer_validator() = default;
+
+    void operator()(option_value_type const & val) const
+    {
+        if (!val)
+            throw sharg::validation_error{"The value must be a positive integer greater than 0."};
+    }
+
+    std::string get_help_page_message() const
+    {
+        return "Value must be a positive integer greater than 0.";
+    }
+};
+
 namespace build
 {
 
@@ -46,7 +70,8 @@ config parse_arguments(sharg::parser & parser)
     parser.add_option(config.threads,
                       sharg::config{.short_id = '\0',
                                     .long_id = "threads",
-                                    .description = "The number of threads to use."}); // positive_integer_validator
+                                    .description = "The number of threads to use.",
+                                    .validator = positive_integer_validator{}});
 
     parser.add_subsection("k-mer options");
     parser.add_option(config.kmer_size,
@@ -113,12 +138,20 @@ config parse_arguments(sharg::parser & parser)
     parser.add_option(config.threads,
                       sharg::config{.short_id = '\0',
                                     .long_id = "threads",
-                                    .description = "The number of threads to use."}); // positive_integer_validator
+                                    .description = "The number of threads to use.",
+                                    .validator = positive_integer_validator{}});
     parser.add_option(config.errors,
                       sharg::config{.short_id = '\0',
                                     .long_id = "errors",
                                     .description = "errors.",
                                     .validator = sharg::arithmetic_range_validator{0, 5}});
+    parser.add_option(config.queue_capacity,
+                      sharg::config{.short_id = '\0',
+                                    .long_id = "queue-capacity",
+                                    .description = "Results of the IBF and FM-Index are collected for each bin. "
+                                                   "Results are processed (IBF->FM-Index, FM-Index->Alignment) once "
+                                                   "`queue-capacity` many results for a bin have been collected.",
+                                    .validator = positive_integer_validator{}});
 
     parser.parse();
 
@@ -130,8 +163,9 @@ config parse_arguments(sharg::parser & parser)
 parse_result parse_arguments(std::vector<std::string> command_line)
 {
     sharg::parser parser{"FPGAlign", std::move(command_line)};
-    parser.info.author = "SeqAn-Team";
+    parser.info.author = "Enrico Seiler";
     parser.info.version = "1.0.0";
+    parser.info.date = "2025-08-15";
     parser.add_subcommands({"build", "search"});
 
     parser.parse();
