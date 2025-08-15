@@ -58,7 +58,7 @@ using sam_out_t = seqan3::sam_file_output<seqan3::fields<seqan3::field::seq,
                                                          //    seqan3::field::qual,
                                                          seqan3::field::mapq>>;
 
-void task(meta & meta, std::span<alignment_info> alignment_infos, sam_out_t & sam_out)
+void task(meta & meta, size_t const bin, std::span<alignment_info> alignment_infos, sam_out_t & sam_out)
 {
     static seqan3::configuration const align_config =
         seqan3::align_cfg::method_global{seqan3::align_cfg::free_end_gaps_sequence1_leading{true},
@@ -68,19 +68,19 @@ void task(meta & meta, std::span<alignment_info> alignment_infos, sam_out_t & sa
         | seqan3::align_cfg::edit_scheme | seqan3::align_cfg::output_alignment{}
         | seqan3::align_cfg::output_begin_position{} | seqan3::align_cfg::output_score{};
 
-    for (auto & [bin, sequence_number, position, idx] : alignment_infos)
+    for (auto [query_idx, reference_number, reference_position] : alignment_infos)
     {
-        auto & seq = meta.queries[idx].sequence();
+        auto & seq = meta.queries[query_idx].sequence();
         auto seq_view = std::views::transform(seq,
                                               [](seqan3::dna4 const in) -> uint8_t
                                               {
                                                   return in.to_rank() + 1u;
                                               });
-        auto & seq_id = meta.queries[idx].id();
-        auto & ref = meta.references[bin][sequence_number];
-        auto & ref_id = meta.ref_ids[bin][sequence_number];
+        auto & seq_id = meta.queries[query_idx].id();
+        auto & ref = meta.references[bin][reference_number];
+        auto & ref_id = meta.ref_ids[bin][reference_number];
 
-        size_t const start = position - static_cast<size_t>(position != 0u);
+        size_t const start = reference_position - static_cast<size_t>(reference_position != 0u);
         size_t const length = seq.size();
         auto it = std::ranges::next(ref.begin(), start, ref.end());
         auto end = std::ranges::next(it, length + 1u, ref.end());
@@ -112,8 +112,8 @@ void do_alignment(config const & config, meta & meta, scq::slotted_cart_queue<al
         scq::cart_future<alignment_info> cart = alignment_queue.dequeue();
         if (!cart.valid())
             return;
-
-        task(meta, cart.get().second, sam_out);
+        auto [bin, alignment_infos] = cart.get();
+        task(meta, bin.value, alignment_infos, sam_out);
     }
 }
 

@@ -47,11 +47,10 @@ void fmindex(config const & config,
                     {
                         auto [entry, offset] = index.locate(j);
                         auto [seqId, pos] = entry;
-                        alignment_queue.enqueue(scq::slot_id{0u},
-                                                alignment_info{.bin = slot.value,
-                                                               .sequence_number = seqId,
-                                                               .position = pos + offset,
-                                                               .idx = idx});
+                        alignment_queue.enqueue(slot,
+                                                alignment_info{.query_idx = idx,
+                                                               .reference_number = seqId,
+                                                               .reference_position = pos + offset});
                     }
                 };
 
