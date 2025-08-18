@@ -4,6 +4,7 @@
 
 #include <algorithm>   // for find_if
 #include <charconv>    // for from_chars
+#include <cstddef>     // for size_t
 #include <filesystem>  // for operator<<, operator>>
 #include <iomanip>     // for operator<<, quoted
 #include <istream>     // for operator<<, operator>>
