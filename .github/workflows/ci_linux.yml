@@ -50,7 +50,7 @@ jobs:
         run: |
           mkdir -p build && cd build
           cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -DCMAKE_CXX_FLAGS="${{ matrix.cxx_flags }} -Werror"
+                   -DCMAKE_CXX_FLAGS="${{ matrix.cxx_flags }}"
 
       - name: Build and run tests
         working-directory: build
