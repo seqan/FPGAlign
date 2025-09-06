@@ -30,10 +30,11 @@ CPMDeclarePackage (sharg
 )
 
 # seqan3
-set (SEQAN3_VERSION 8724133817fc7889b280253c209aa47f6395a13c CACHE STRING "")
+set (SEQAN3_VERSION 3.4.0 CACHE STRING "")
 CPMDeclarePackage (seqan3
                    NAME seqan3
-                   GIT_TAG ${SEQAN3_VERSION} # main
+                   VERSION ${SEQAN3_VERSION}
+                   GIT_TAG ${SEQAN3_VERSION}
                    GITHUB_REPOSITORY seqan/seqan3
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE
@@ -41,11 +42,10 @@ CPMDeclarePackage (seqan3
 )
 
 # fmt
-set (FMT_VERSION 11.2.0 CACHE STRING "")
+set (FMT_VERSION 9908d00037d58233bcb1a7c99153bb96363994df CACHE STRING "")
 CPMDeclarePackage (fmt
                    NAME fmt
-                   VERSION ${FMT_VERSION}
-                   GIT_TAG ${FMT_VERSION}
+                   GIT_TAG ${FMT_VERSION} # master
                    GITHUB_REPOSITORY fmtlib/fmt
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE

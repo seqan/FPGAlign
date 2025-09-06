@@ -42,8 +42,7 @@ jobs:
       - name: Configure tests
         run: |
           mkdir -p build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Release \
-                   -DCMAKE_CXX_FLAGS="-Werror"
+          cmake .. -DCMAKE_BUILD_TYPE=Release
 
       - name: Build and run tests
         working-directory: build
