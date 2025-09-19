@@ -8,7 +8,7 @@
 # cmake-format: off
 
 # hibf
-set (HIBF_VERSION 101a00d86098907436f4eb67835bb744c2405b32 CACHE STRING "")
+set (HIBF_VERSION e60abe791268be4e384740c52d29edc18606ea5f CACHE STRING "")
 CPMDeclarePackage (hibf
                    NAME hibf
                    GIT_TAG ${HIBF_VERSION} # main
@@ -19,7 +19,7 @@ CPMDeclarePackage (hibf
 )
 
 # sharg
-set (SHARG_VERSION 1f6b9812cb8373b6aa423090aa923075a2a49d53 CACHE STRING "")
+set (SHARG_VERSION 47d4acc17a1e241ab2de9bb99d2d42a21f0d02ea CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
                    GIT_TAG ${SHARG_VERSION} # main
@@ -42,10 +42,11 @@ CPMDeclarePackage (seqan3
 )
 
 # fmt
-set (FMT_VERSION 9908d00037d58233bcb1a7c99153bb96363994df CACHE STRING "")
+set (FMT_VERSION 12.0.0 CACHE STRING "")
 CPMDeclarePackage (fmt
                    NAME fmt
-                   GIT_TAG ${FMT_VERSION} # master
+                   VERSION ${FMT_VERSION}
+                   GIT_TAG ${FMT_VERSION}
                    GITHUB_REPOSITORY fmtlib/fmt
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE
@@ -53,7 +54,7 @@ CPMDeclarePackage (fmt
 )
 
 # fmindex
-set (FMINDEX_VERSION a6be20e34e34a1a1f47a29bcafdcc0c5203c13a5 CACHE STRING "")
+set (FMINDEX_VERSION e35626ba983dde88107709345f1efe49f1ac02e1 CACHE STRING "")
 CPMDeclarePackage (fmindex
                    NAME fmindex
                    GIT_TAG ${FMINDEX_VERSION} # main
