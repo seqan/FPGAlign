@@ -42,10 +42,11 @@ CPMDeclarePackage (seqan3
 )
 
 # fmt
-set (FMT_VERSION e424e3f2e607da02742f73db84873b8084fc714c CACHE STRING "")
+set (FMT_VERSION 12.0.0 CACHE STRING "")
 CPMDeclarePackage (fmt
                    NAME fmt
-                   GIT_TAG ${FMT_VERSION} # master
+                   VERSION ${FMT_VERSION}
+                   GIT_TAG ${FMT_VERSION}
                    GITHUB_REPOSITORY fmtlib/fmt
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE
