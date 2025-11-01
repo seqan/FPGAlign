@@ -42,7 +42,7 @@ CPMDeclarePackage (seqan3
 )
 
 # fmt
-set (FMT_VERSION 12.0.0 CACHE STRING "")
+set (FMT_VERSION 12.1.0 CACHE STRING "")
 CPMDeclarePackage (fmt
                    NAME fmt
                    VERSION ${FMT_VERSION}
