@@ -8,7 +8,7 @@
 # cmake-format: off
 
 # hibf
-set (HIBF_VERSION 7cc3e7119e203b8b65fb6f2ea92cfe3e7645a106 CACHE STRING "")
+set (HIBF_VERSION bbca76409f5445f1404c206021fcfa37f1fd7054 CACHE STRING "")
 CPMDeclarePackage (hibf
                    NAME hibf
                    GIT_TAG ${HIBF_VERSION} # main
@@ -19,7 +19,7 @@ CPMDeclarePackage (hibf
 )
 
 # sharg
-set (SHARG_VERSION cafa602ced86f3a347064c5b8188316db09ade72 CACHE STRING "")
+set (SHARG_VERSION 983dc3dc415d9fc193fb4dac110cc2ecac2ca4bc CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
                    GIT_TAG ${SHARG_VERSION} # main
@@ -54,7 +54,7 @@ CPMDeclarePackage (fmt
 )
 
 # fmindex
-set (FMINDEX_VERSION e35626ba983dde88107709345f1efe49f1ac02e1 CACHE STRING "")
+set (FMINDEX_VERSION 45ac222cb73c7de4a88f0740223fe8b902cdeec8 CACHE STRING "")
 CPMDeclarePackage (fmindex
                    NAME fmindex
                    GIT_TAG ${FMINDEX_VERSION} # main
