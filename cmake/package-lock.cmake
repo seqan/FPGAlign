@@ -8,7 +8,7 @@
 # cmake-format: off
 
 # hibf
-set (HIBF_VERSION 7cc3e7119e203b8b65fb6f2ea92cfe3e7645a106 CACHE STRING "")
+set (HIBF_VERSION 37108885a53eec0a0d64251ffc60d43bcf9f9b49 CACHE STRING "")
 CPMDeclarePackage (hibf
                    NAME hibf
                    GIT_TAG ${HIBF_VERSION} # main
@@ -19,10 +19,11 @@ CPMDeclarePackage (hibf
 )
 
 # sharg
-set (SHARG_VERSION cafa602ced86f3a347064c5b8188316db09ade72 CACHE STRING "")
+set (SHARG_VERSION 1.2.2 CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
-                   GIT_TAG ${SHARG_VERSION} # main
+                   VERSION ${SHARG_VERSION}
+                   GIT_TAG ${SHARG_VERSION}
                    GITHUB_REPOSITORY seqan/sharg-parser
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE
@@ -30,7 +31,7 @@ CPMDeclarePackage (sharg
 )
 
 # seqan3
-set (SEQAN3_VERSION 3.4.0 CACHE STRING "")
+set (SEQAN3_VERSION 3.4.2 CACHE STRING "")
 CPMDeclarePackage (seqan3
                    NAME seqan3
                    VERSION ${SEQAN3_VERSION}
@@ -54,10 +55,11 @@ CPMDeclarePackage (fmt
 )
 
 # fmindex
-set (FMINDEX_VERSION e35626ba983dde88107709345f1efe49f1ac02e1 CACHE STRING "")
+set (FMINDEX_VERSION 1.6.2 CACHE STRING "")
 CPMDeclarePackage (fmindex
                    NAME fmindex
-                   GIT_TAG ${FMINDEX_VERSION} # main
+                   VERSION ${FMINDEX_VERSION} # latest
+                   GIT_TAG v${FMINDEX_VERSION}
                    GITHUB_REPOSITORY SGSSGene/fmindex-collection
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE

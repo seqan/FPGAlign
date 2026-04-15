@@ -25,11 +25,11 @@ defaults:
 jobs:
   build:
     name: ${{ matrix.compiler }}
-    runs-on: macos-14
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        compiler: ["clang-latest", "clang-second-latest", "gcc-latest", "gcc-second-latest", "gcc-third-latest"]
+        compiler: ["clang-latest", "clang-second-latest", "gcc-latest", "gcc-second-latest"]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
