@@ -19,10 +19,11 @@ CPMDeclarePackage (hibf
 )
 
 # sharg
-set (SHARG_VERSION 89550635785393ecbfd32743c5a70c9103a42ef1 CACHE STRING "")
+set (SHARG_VERSION 1.2.2 CACHE STRING "")
 CPMDeclarePackage (sharg
                    NAME sharg
-                   GIT_TAG ${SHARG_VERSION} # main
+                   VERSION ${SHARG_VERSION}
+                   GIT_TAG ${SHARG_VERSION}
                    GITHUB_REPOSITORY seqan/sharg-parser
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE
@@ -54,10 +55,11 @@ CPMDeclarePackage (fmt
 )
 
 # fmindex
-set (FMINDEX_VERSION 7f2834e4884983d21c62c38093e56fe1f38805b5 CACHE STRING "")
+set (FMINDEX_VERSION 1.6.2 CACHE STRING "")
 CPMDeclarePackage (fmindex
                    NAME fmindex
-                   GIT_TAG ${FMINDEX_VERSION} # main
+                   VERSION ${FMINDEX_VERSION} # latest
+                   GIT_TAG v${FMINDEX_VERSION}
                    GITHUB_REPOSITORY SGSSGene/fmindex-collection
                    SYSTEM TRUE
                    EXCLUDE_FROM_ALL TRUE

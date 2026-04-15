@@ -12,6 +12,10 @@
 #include <seqan3/alphabet/nucleotide/dna4.hpp> // for dna4
 #include <seqan3/io/sequence_file/record.hpp>  // for sequence_record
 
+// clang-format: off
+#include <fpgalign/utility/compat.hpp> // IWYU pragma: keep
+// clang-format: on
+
 #include <fmindex-collection/fmindex/BiFMIndex.h> // for BiFMIndex
 #include <fmindex-collection/search/search.h>     // for search
 
@@ -45,8 +49,7 @@ void fmindex(config const & config,
                 {
                     for (auto j : cursor)
                     {
-                        auto [entry, offset] = index.locate(j);
-                        auto [seqId, pos] = entry;
+                        auto [seqId, pos, offset] = index.locate(j);
                         alignment_queue.enqueue(slot,
                                                 alignment_info{.query_idx = idx,
                                                                .reference_number = seqId,
