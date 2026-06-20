@@ -8,7 +8,7 @@
 # cmake-format: off
 
 # hibf
-set (HIBF_VERSION 71d75273a19443b283b430fb799cb8953a6a7474 CACHE STRING "")
+set (HIBF_VERSION a78290006b7f945076ed3d286ad2dbc59879d797 CACHE STRING "")
 CPMDeclarePackage (hibf
                    NAME hibf
                    GIT_TAG ${HIBF_VERSION} # main
@@ -43,7 +43,7 @@ CPMDeclarePackage (seqan3
 )
 
 # fmt
-set (FMT_VERSION 12.1.0 CACHE STRING "")
+set (FMT_VERSION 12.2.0 CACHE STRING "")
 CPMDeclarePackage (fmt
                    NAME fmt
                    VERSION ${FMT_VERSION}
