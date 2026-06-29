@@ -4,7 +4,8 @@ SPDX-FileCopyrightText: 2016-2025 Knut Reinert & MPI für molekulare Genetik
 SPDX-License-Identifier: CC0-1.0
 -->
 
-# FPGAlign [![build status][1]][2] [![codecov][3]][4]
+# FPGAlign [![build status][1]][2]
+<!-- [![codecov][3]][4] -->
 <!--
     Above uses reference-style links with numbers.
     See also https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#links.
@@ -55,78 +56,99 @@ SPDX-License-Identifier: CC0-1.0
 -->
 [4]: https://codecov.io/gh/seqan/FPGAlign
 
-This is a template for C++ app developers.
-You can easily use this template and modify the existing code to suit your needs.
-It provides an elementary CMake set-up, some useful SeqAn libraries, and an example application.
+This repository implements a CPU-based read-mapper that combines an Interleaved Bloom Filter (IBF) and per-bin FM-indexes
+to quickly map sequencing reads against a collection of reference genomes organized in user-defined bins.
 
-For requirements, check the [Software section of the SeqAn3 Quick Setup](https://docs.seqan.de/seqan3/main_user/setup.html#autotoc_md109).
+The implementation is split into two main subcommands: `build` and `search`.
 
-## Instructions for App Developers:
+## Background
 
-If you want to build an app, do the following:
+- The pipeline uses an IBF as a fast probabilistic prefilter to assign reads to candidate bins.
+- Candidate bins are searched with per-bin FM-indexes to determine exact match positions.
+- Final alignments are computed with SeqAn3 pairwise alignment and exported as a SAM file.
+- To avoid I/O and synchronization bottlenecks the pipeline uses a specialized shopping-cart queue (SCQ) to batch and
+    asynchronously pass results between pipeline stages.
 
-0. You need to be signed in with a **GitHub account**.
-1. Press the `Use this template`-Button to create your own repository. See [GitHub's documentation](https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/creating-a-repository-from-a-template) for more information.
-2. **Wait** for GitHub actions to create a commit in your new repository. The commit message will be `Initialise repository` and it will replace placeholders in the code. Afterwards, the README in your repository will be customised to your repository, among other things.
-3. **Clone** your repository locally: `git clone git@github.com:seqan/FPGAlign.git`
-4. <details><summary>Build and test the app (example) </summary>
-    In your local repository clone, you can do the following to build and test your app:
+## Features
 
-    ```bash
-    mkdir build        # create build directory
-    cd build           # step into build directory
-    cmake ..           # call cmake on the repository
-    make               # build the app FPGAlign
-    make check         # build and run tests
-    ./bin/FPGAlign # Execute the app (prints a short help page)
-    ```
-   </details>
+- `build`: construct an IBF and per-bin FM-indexes from a file of per-bin reference paths.
+- `search`: query the constructed index with FASTA/FASTQ queries and produce a SAM output.
+- Parallelized IBF membership, FM-index searching and alignment stages with configurable thread counts.
 
-## Setting up Codecov (optional)
+## Quickstart
 
-1. Go to https://codecov.io/gh/seqan/FPGAlign.
-2. Sign in with your GitHub account.
-3. Go to https://app.codecov.io/gh/seqan/FPGAlign/config/general.<br>
-   If the repository cannot be found, go to https://app.codecov.io/gh/seqan and click `Resync`.<br>
-   Then try again.
-4. Copy the `Repository Upload Token`.
-5. Go to https://github.com/seqan/FPGAlign/settings/secrets/actions.
-6. Add a `New repository secret` with the name `CODECOV_TOKEN` and the value of the `Repository Upload Token`.
-7. Done! The next push to your repository will create a Codecov report.
+### Build from source (example)
 
-## Setting up permissions for Lint action (optional)
+```bash
+mkdir build
+cd build
+cmake ..
+make -j
+```
 
-1. Go to https://github.com/seqan/FPGAlign/settings/actions.
-2. Under `Workflow permissions`, at the very bottom, tick `Allow GitHub Actions to create and approve pull requests` and click `Save`.
-3. You can go to https://github.com/seqan/FPGAlign/actions/workflows/lint.yml and click `Run workflow` to run linting.
+### Example: construct indexes from a list of bins
 
-## Instructions for SeqAn3 Tutorial Purposes:
+```bash
+./bin/FPGAlign build \
+    --input /path/to/bin_list.txt \
+    --output /path/to/output_prefix \
+    --kmer 20 --window 20 --hash 2 --fpr 0.05 --threads 4
+```
 
-If you just some quick hands-on experience with SeqAn Libraries, you can also just clone this repository and start editing the `src/main.cpp` file.
+- `bin_list.txt` is a whitespace-separated list where each non-empty line defines one user bin and contains one or more file paths (reference sequences) belonging to that bin.
 
-### Adding a new cpp file
+### Example: search with query reads
 
-If you want to add a new cpp file (e.g., `tutorial1.cpp`) that is compiled and linked with the current infrastructure, do the following:
+```bash
+./bin/FPGAlign search \
+    --input /path/to/output_prefix \
+    --query queries.fasta \
+    --output results.sam \
+    --threads 4 --errors 2 --queue-capacity 8
+```
 
-1. Create a new file `tutorial1.cpp` in the `src/` directory.
-   <details><summary>The file content could look like this:</summary>
+- `--input` points to the prefix used when building the index (the tool will look for `*.ibf`, `*.meta`, `*.fmindex`, `*.ref` files using that prefix).
 
-   ```cpp
-   #include <seqan3/core/debug_stream.hpp>
+## Input format
 
-   int main()
-   {
-       seqan3::debug_stream << "Hello, World!" << std::endl;
-   }
-   ```
-   </details>
-2. Add the following lines at the bottom of `src/CMakeLists.txt`
-    ```cmake
-    # Add another cpp file.
-    add_executable (tutorial01 tutorial01.cpp)
-    target_link_libraries (tutorial01 PRIVATE "FPGAlign_lib")
-    ```
-3. Go to the build directory `cd build`
-4. Refresh CMake `cmake .`
-5. Build your new cpp file `make tutorial01`
-6. Execute your new binary with `./tutorial01`
+- Build input: a text file where each non-empty line contains one or more reference file paths (FASTA/FASTQ) that constitute a single bin.
+- Search input: query sequences in FASTA/FASTQ format (the code uses SeqAn3 sequence file input for parsing).
+
+## Output files produced by `build`
+
+- `<output_prefix>.ibf` — serialized Interleaved Bloom Filter.
+- `<output_prefix>.meta` — metadata describing k-mer/window sizes, number of bins and reference IDs.
+- `<output_prefix>.<id>.fmindex` — per-bin serialized FM-index (one file per bin id).
+- `<output_prefix>.<id>.ref` — per-bin serialized reference sequences (stored for alignment retrieval).
+
+## Runtime behavior
+
+- The `search` pipeline consists of three asynchronous stages connected by SCQs:
+    1. IBF membership agent (prefilter) — produces candidate bin hits.
+    2. FM-index lookup per bin — locates exact reference positions for candidate reads.
+    3. Pairwise alignment — computes final CIGARs and writes SAM records.
+
+## Key options
+
+- `--kmer`, `--window`: k-mer and window sizes used for minimiser hashing (default `k=20`).
+- `--hash`, `--fpr`: number of hash functions and target false-positive rate for the IBF.
+- `--errors`: maximum allowed errors for FM-index search.
+- `--threads`: number of threads for parallel stages.
+- `--queue-capacity`: batching capacity of the shopping-cart queues (SCQ).
+
+## Development & testing
+
+- Build and run tests (from repository root):
+
+```bash
+mkdir -p build && cd build
+cmake ..
+make -j
+ctest -j --output-on-failure
+```
+
+<br>
+<p align="center">
+  <a target="_blank" rel="noopener noreferrer" href="#">
+  <img src=".github/BMFTR_logo_foerderung.svg" alt="Funded by the BMFTR" width="280">
+</p>
