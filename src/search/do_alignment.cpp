@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include <algorithm>  // for find_if
+#include <charconv>   // for to_chars
 #include <cstddef>    // for size_t
 #include <cstdint>    // for uint8_t
 #include <filesystem> // for path
@@ -10,10 +11,8 @@
 #include <ranges>     // for transform_view, __fn, tra...
 #include <string>     // for basic_string
 #include <tuple>      // for tuple, tuple_cat, tie
-#include <utility>    // for pair
+#include <utility>    // for get
 #include <vector>     // for vector
-
-#include <sharg/std/charconv> // for to_chars
 
 #include <seqan3/alignment/cigar_conversion/cigar_from_alignment.hpp>              // for cigar_from_alignment
 #include <seqan3/alignment/configuration/align_config_edit.hpp>                    // for edit_scheme
